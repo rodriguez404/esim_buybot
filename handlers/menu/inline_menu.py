@@ -5,7 +5,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 
 from handlers.menu import esim_lists
 
-from handlers.keyboards.buttons_menu import buttons_global_esim, paginate_buttons_region
+from handlers.keyboards.buttons_menu import buttons_global_esim, buttons_region_esim
 from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
 
 
@@ -93,7 +93,7 @@ async def inline_menu_global_esim_tariff(callback: CallbackQuery):
 # Региональные eSIM: Купить eSIM -> Региональные eSIM
 async def inline_menu_regional_esim(message: types.Message):
     data = await esim_lists.esim_regional()
-    kb = paginate_buttons_region(data, page=0)
+    kb = buttons_region_esim(data, page=0)
     await message.answer(
         "*🌍 Региональные eSIM-пакеты:*\n"
         "Пожалуйста, выберите регион, где Вам нужен мобильный интернет:",

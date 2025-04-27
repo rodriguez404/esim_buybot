@@ -4,7 +4,7 @@ from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.types import PreCheckoutQuery, Message
 
 from database.models.esim_global import DataBase_EsimPackageGlobal
-from handlers.keyboards.buttons_menu import paginate_buttons_region, buttons_global_esim
+from handlers.keyboards.buttons_menu import buttons_region_esim, buttons_global_esim
 from handlers.menu.esim_lists import esim_global, esim_regional
 from handlers.menu import inline_menu, invoice_payment_menu
 
@@ -70,6 +70,16 @@ async def callback_global_page(callback: types.CallbackQuery):
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
+
+@dp.callback_query(lambda c: c.data.startswith("regional_page_"))
+async def callback_region_page(callback: types.CallbackQuery):
+    page = int(callback.data.split("_")[-1])
+    plans = await esim_regional()
+    kb = buttons_region_esim(plans, page=page)
+
+    await callback.message.edit_reply_markup(reply_markup=kb)
+    await callback.answer()
+
 
 # Обработчик на кнопки Назад-Вперед для всех менюшек
 # @dp.callback_query(F.data.startswith("page_"))
