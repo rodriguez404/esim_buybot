@@ -2,18 +2,18 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-BOT_TOKEN = os.getenv(BOT_TOKEN)
-PAYMENTS_TOKEN = os.getenv(PAYMENTS_TOKEN)
+BOT_TOKEN = os.getenv("bot_token")
+PAYMENTS_TOKEN = os.getenv("payments_token")
 
 class DATABASE:
-    HOST: os.getenv(database_host)
+    HOST = os.getenv("database_host")
 
 class REDIS:
-    HOST_URL: os.getenv(redis_host_url)
-    PORT: os.getenv(redis_port)
+    HOST_URL = os.getenv("redis_host_url")
+    PORT = os.getenv("redis_port")
 
 class ESIM:
-    ACCESS_CODE: os.getenv(esim_access_code)
-    SECRET_KEY: os.getenv(esim_secret_key)
-    HOST_API_URL: os.getenv(esim_host_api_url)
-    API_PACKAGELIST_URL: os.getenv(esim_api_packagelist_url)
+    ACCESS_CODE = os.getenv("esim_access_code")
+    SECRET_KEY = os.getenv("esim_secret_key")
+    HOST_API_URL = os.getenv("esim_host_api_url")
+    API_PACKAGELIST_URL = os.getenv("esim_api_packagelist_url")

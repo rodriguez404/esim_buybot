@@ -7,7 +7,7 @@ url_locationlist = ESIM.API_PACKAGELIST_URL
 
 async def fetch(url, payload):
     session = await get_session()
-    headers = {'RT-AccessCode': {ESIM.ACCESS_CODE}}
+    headers = {'RT-AccessCode': ESIM.ACCESS_CODE}
     async with session.post(url, headers=headers, json=payload) as response:
         message: dict = await response.json()
     return message

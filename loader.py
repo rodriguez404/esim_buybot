@@ -5,7 +5,7 @@ from redis.asyncio import Redis
 from redis_cache import RedisCache
 from aiogram.fsm.storage.redis import RedisStorage
 
-redis = Redis(host=os.getenv(REDIS.HOST_URL), port=os.getenv(REDIS.PORT), decode_responses=True)
+redis = Redis(host=REDIS.HOST_URL, port=int(REDIS.PORT), decode_responses=True)
 cache = RedisCache(redis, prefix="tg:", default_ttl=60)
 redis_storage = RedisStorage(redis)
 
