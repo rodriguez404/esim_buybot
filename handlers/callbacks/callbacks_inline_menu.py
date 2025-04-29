@@ -4,8 +4,8 @@ from aiogram.types import CallbackQuery, LabeledPrice
 from aiogram.types import PreCheckoutQuery, Message
 
 from database.models.esim_global import DataBase_EsimPackageGlobal
-from handlers.keyboards.buttons_menu import buttons_region_esim, buttons_global_esim
-from handlers.menu.esim_lists import esim_global, esim_regional
+from handlers.keyboards.buttons_menu import buttons_region_esim, buttons_global_esim, buttons_region_esim_selected
+from handlers.menu.esim_lists import esim_global, esim_regional, esim_regional_selected
 from handlers.menu import inline_menu, invoice_payment_menu
 
 from loader import dp, bot
@@ -29,7 +29,7 @@ async def global_esim_callback(callback: CallbackQuery):
 
 # Международные тарифы eSIM: Купить eSIM -> Международные eSIM -> Конкретный тариф
 @dp.callback_query(F.data.startswith("global_plan_"))
-async def selected_plan(callback: CallbackQuery):
+async def selected_plan_global(callback: CallbackQuery):
     try:
         await callback.message.delete()
     except Exception as e:
@@ -62,6 +62,7 @@ async def region_esim_callback(callback: CallbackQuery):
 
     await inline_menu.inline_menu_regional_esim(callback.message)
 
+
 @dp.callback_query(lambda c: c.data.startswith("global_page_"))
 async def callback_global_page(callback: types.CallbackQuery):
     page = int(callback.data.split("_")[-1])
@@ -71,6 +72,7 @@ async def callback_global_page(callback: types.CallbackQuery):
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
 
+
 @dp.callback_query(lambda c: c.data.startswith("regional_page_"))
 async def callback_region_page(callback: types.CallbackQuery):
     page = int(callback.data.split("_")[-1])
@@ -79,6 +81,25 @@ async def callback_region_page(callback: types.CallbackQuery):
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
+
+@dp.callback_query(lambda c: c.data.startswith("regional_region_"))
+async def callback_region_page(callback: types.CallbackQuery):
+    page = int(callback.data.split("_")[-1])
+    region_id = int(callback.data.split("_")[-3])
+    plans = await esim_regional_selected(region_id)
+    kb = buttons_region_esim_selected(plans, region_id, page=page)
+
+    await callback.message.edit_reply_markup(reply_markup=kb)
+    await callback.answer()
+
+
+@dp.callback_query(lambda c: c.data.startswith("region_id_"))
+async def selected_plan_region(callback: types.CallbackQuery):
+    try:
+        await callback.message.delete()
+    except Exception as e:
+        print(f"Не удалось удалить сообщение пользователя: {e}")
+    await inline_menu.inline_menu_regional_esim_tariff(callback)
 
 
 # Обработчик на кнопки Назад-Вперед для всех менюшек

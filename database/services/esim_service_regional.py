@@ -1,9 +1,6 @@
 import re
-
 from tortoise import Tortoise
-
 from database.models.esim_regional import DataBase_Region, DataBase_RegionalTariff, DataBase_RegionalCountry
-
 from api.esim_access import fetch, url_packagelist
 
 # Словарь региональных кодов и их "человеческих" названий

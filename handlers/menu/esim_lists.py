@@ -4,10 +4,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 #
 from database.models.esim_global import DataBase_EsimPackageGlobal
-from database.models.esim_regional import DataBase_Region
-
-import re
-from api.esim_access import fetch, url_packagelist
+from database.models.esim_regional import DataBase_Region, DataBase_RegionalCountry, DataBase_RegionalTariff
 
 async def esim_global():
     plans = []
@@ -33,5 +30,18 @@ async def esim_regional():
 
     # Сортировка по имени региона (по алфавиту)
     plans = sorted(plans, key=lambda x: x[1])
+
+    return plans
+
+async def esim_regional_selected(region_id):
+    plans = []
+
+    packages = await DataBase_RegionalTariff.filter(region=region_id).all()
+
+    for package in packages:
+        plans.append([package.id, package.gb, package.days, package.price])
+
+    # Сортировка: по объему, затем по количеству дней, затем по цене
+    plans.sort(key=lambda x: (x[1], x[2], x[3]))
 
     return plans

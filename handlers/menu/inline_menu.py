@@ -5,8 +5,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 
 from handlers.menu import esim_lists
 
-from handlers.keyboards.buttons_menu import buttons_global_esim, buttons_region_esim
+from handlers.keyboards.buttons_menu import buttons_global_esim, buttons_region_esim, buttons_region_esim_selected
 from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
+from database.models.esim_regional import DataBase_RegionalTariff
 
 
 #Купить eSIM
@@ -100,6 +101,25 @@ async def inline_menu_regional_esim(message: types.Message):
         reply_markup=kb,
         parse_mode="Markdown"
     )
+
+# Региональные eSIM: Купить eSIM -> Региональные eSIM -> Все тарифы конкретного региона
+async def inline_menu_regional_esim_tariff(callback: CallbackQuery):
+    region_id = int(callback.data.split("_")[-1])
+
+    # Получаем тарифы по ID
+
+    plans = await esim_lists.esim_regional_selected(region_id=region_id)
+    print("~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~")
+    print("region_id: ", region_id)
+    print("plans: ", plans)
+    kb = buttons_region_esim_selected(plans, region_id=region_id, page=0)
+
+    # Основной текст
+    text = (
+        "*🌍 Региональные тарифы:*\n"
+    )
+
+    await callback.message.answer(text, reply_markup=kb, parse_mode="Markdown")
 
 #Мои eSIM
 async def inline_menu_my_eSIM(message: types.Message):
