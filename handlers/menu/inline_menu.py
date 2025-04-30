@@ -7,7 +7,7 @@ from handlers.menu import esim_lists
 
 from handlers.keyboards.buttons_menu import buttons_global_esim, buttons_region_esim, buttons_region_esim_selected
 from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
-from database.models.esim_regional import DataBase_RegionalTariff
+from database.models.esim_regional import DataBase_RegionalCountry, DataBase_RegionalTariff
 
 
 #Купить eSIM
@@ -103,20 +103,67 @@ async def inline_menu_regional_esim(message: types.Message):
     )
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Все тарифы конкретного региона
-async def inline_menu_regional_esim_tariff(callback: CallbackQuery):
+async def inline_menu_regional_esim_tariffs_list(callback: CallbackQuery):
     region_id = int(callback.data.split("_")[-1])
 
-    # Получаем тарифы по ID
+    # Получаем тарифы по ID региона
 
-    plans = await esim_lists.esim_regional_selected(region_id=region_id)
-    print("~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("region_id: ", region_id)
-    print("plans: ", plans)
+    plans = await esim_lists.esim_regional_selected_region_plans(region_id=region_id)
     kb = buttons_region_esim_selected(plans, region_id=region_id, page=0)
 
     # Основной текст
     text = (
         "*🌍 Региональные тарифы:*\n"
+    )
+
+    await callback.message.answer(text, reply_markup=kb, parse_mode="Markdown")
+
+# Региональные eSIM: Купить eSIM -> Региональные eSIM -> Все тарифы конкретного региона -> Конкретный тариф
+async def inline_menu_regional_esim_tariff(callback: CallbackQuery):
+    plan_id = int(callback.data.split("_")[-1])
+    region_id = int(callback.data.split("_")[-2])
+
+    # Получаем тариф по ID
+    plan = await DataBase_RegionalTariff.get_or_none(id=plan_id, region=region_id)
+    if not plan:
+        await callback.message.answer("⚠️ Ошибка: тариф не найден.")
+        return
+
+    # Получаем список стран с кодами
+    countries = await DataBase_RegionalCountry.filter(tariff=plan_id, region=region_id).values("location_name", "location_code")
+    countries_text = ", ".join(f"{code_to_flag(c['location_code'])} {c['location_name']}" for c in countries) \
+        if countries else "страны не найдены"
+
+    # Клавиатура
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=f"Купить eSIM • {plan.price}$", callback_data=f"buy_esim_regional_selected_region_{region_id}_{plan.id}")],
+            [
+                InlineKeyboardButton(text="Назад", callback_data=f"regional_region_page_{region_id}_0"),
+                InlineKeyboardButton(text="Закрыть", callback_data="close_inline_menu")
+            ]
+        ]
+    )
+
+    # Основной текст
+    text = (
+        "*🌍 Региональная eSIM*\n"
+        f"Вы выбрали eSIM с тарифом *{plan.gb} ГБ на {plan.days} дней*. В тариф также входит:\n"
+        "   • Неограниченная скорость;\n"
+        "   • Безопасное соединение;\n"
+        "   • Режим модема.\n\n"
+        f"🗺️ eSIM будет работать в следующих странах: {countries_text}\n\n"
+        "⚠️ На eSIM доступен только интернет-трафик, который работает в указанных странах. "
+        "Для оформления eSIM не требуется удостоверение личности.\n\n"
+        "После оплаты Вы получите QR-код и дополнительную информацию для установки eSIM. "
+        "Срок действия eSIM отсчитывается с момента ее активации на Вашем устройстве.\n\n"
+        "---------\n\n"
+        "Перед покупкой eSIM, пожалуйста, убедитесь, что Ваше устройство поддерживается "
+        "(iOS (https://t.me/fedafone_bot/ios_ru), Android (https://t.me/fedafone_bot/android_ru), "
+        "Windows (https://t.me/fedafone_bot/windows_ru)).\n\n"
+        "Нажимая кнопку Купить eSIM Вы соглашаетесь с условиями и положениями "
+        "(https://t.me/fedafone_bot/terms_ru).\n\n"
+        "💳 Изменить способ оплаты можно в меню Настройки."
     )
 
     await callback.message.answer(text, reply_markup=kb, parse_mode="Markdown")

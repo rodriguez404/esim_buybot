@@ -92,22 +92,22 @@ def buttons_region_esim_selected(plans: list[list[int]], region_id: int, page: i
     for plan in current_page_data:
         plan_id, gb, days, price = plan
         text = f"{gb} ГБ на {days} дней — {price}$"
-        callback_data = f"region_plan_{plan_id}"
+        callback_data = f"regional_selected_region_plan_{region_id}_{plan_id}"
         keyboard.append([InlineKeyboardButton(text=text, callback_data=callback_data)])
 
     # Навигация по страницам в 2 столбца, если есть
     navigation_buttons = []
     if page > 0:
-        navigation_buttons.append(InlineKeyboardButton(text="⬅️ Назад", callback_data=f"regional_region_{region_id}_page_{page - 1}"))
+        navigation_buttons.append(InlineKeyboardButton(text="⬅️ Назад", callback_data=f"regional_region_page_{region_id}_{page - 1}"))
     if end < len(plans):
-        navigation_buttons.append(InlineKeyboardButton(text="➡️ Далее", callback_data=f"regional_region_{region_id}_page_{page + 1}"))
+        navigation_buttons.append(InlineKeyboardButton(text="➡️ Далее", callback_data=f"regional_region_page_{region_id}_{page + 1}"))
 
     if navigation_buttons:
         keyboard.append(navigation_buttons)
 
     # Добавляем нижние кнопки
     keyboard.append([
-        InlineKeyboardButton(text="Меню", callback_data="inline_menu_buy_eSIM"),
+        InlineKeyboardButton(text="Меню", callback_data="region_esim_inline_menu"),
         InlineKeyboardButton(text="Закрыть", callback_data="close_inline_menu")
     ])
 

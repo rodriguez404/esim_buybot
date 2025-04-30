@@ -33,7 +33,7 @@ async def esim_regional():
 
     return plans
 
-async def esim_regional_selected(region_id):
+async def esim_regional_selected_region_plans(region_id):
     plans = []
 
     packages = await DataBase_RegionalTariff.filter(region=region_id).all()
