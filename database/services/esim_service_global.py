@@ -15,11 +15,11 @@ async def updata_esim_packages_global():
 
     for package in package_list:
         name = package.get("name", "")
-        price = package.get("price", 0) // 10000
+        price = package.get("price", 0) / 10000
 
         # Пытаемся извлечь GB и Days
         try:
-            gb = int(re.search(r"(\d+)GB", name).group(1))
+            gb = float(re.search(r"(\d+)GB", name).group(1))
             days = int(re.search(r"(\d+)Days", name).group(1))
         except Exception as e:
             print(f"⚠️ Не удалось распарсить тариф: {name}, ошибка: {e}")

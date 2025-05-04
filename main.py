@@ -19,6 +19,7 @@ from database.models.user import DataBase_User  # Правильный импо�
 from database.services.user_service import get_or_create_user
 from database.services.esim_service_global import updata_esim_packages_global
 from database.services.esim_service_regional import update_esim_packages_regional
+from database.services.esim_service_local import debug_update_esim_packages_local,update_esim_packages_local
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -47,10 +48,10 @@ async def cmd_id(message: types.Message):
 
 async def main():
     await init_db()
-    await updata_esim_packages_global()
-    await update_esim_packages_regional()
+    #await updata_esim_packages_global()
+    #await update_esim_packages_regional()
+    await update_esim_packages_local()
     await set_commands(bot) # Устанавливаем команды для меню слева
-    # await dp.start_polling(bot)
     try:
         await dp.start_polling(bot)
     finally:

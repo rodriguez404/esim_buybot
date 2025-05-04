@@ -3,9 +3,9 @@ from tortoise import fields, models
 # Таблица тарифов: | Объем ГБ | Количество дней | Цена |
 class DataBase_EsimPackageGlobal(models.Model):
     id = fields.IntField(pk=True)
-    gb = fields.IntField()  # Объем данных в ГБ
+    gb = fields.FloatField()  # Объем данных в ГБ
     days = fields.IntField()  # Количество дней
-    price = fields.IntField()  # Цена
+    price = fields.FloatField()  # Цена
 
     countries: fields.ReverseRelation["DataBase_EsimCountryGlobal"]
 

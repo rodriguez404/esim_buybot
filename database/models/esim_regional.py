@@ -12,13 +12,13 @@ class DataBase_Region(models.Model):
         table = "esim_regions"
 
 
-# Таблица тарифов для регионов: | Объем ГБ | Количество дней |
+# Таблица тарифов для регионов: | Объем ГБ | Количество дней | Цена |
 class DataBase_RegionalTariff(models.Model):
     id = fields.IntField(pk=True)
     region = fields.ForeignKeyField("models.DataBase_Region", related_name="tariffs")
-    gb = fields.IntField()
+    gb = fields.FloatField()
     days = fields.IntField()
-    price = fields.IntField()
+    price = fields.FloatField()
 
     countries: fields.ReverseRelation["DataBase_RegionalCountry"]
 
@@ -37,4 +37,3 @@ class DataBase_RegionalCountry(models.Model):
 
     class Meta:
         table = "esim_regional_countries"
-

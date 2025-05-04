@@ -3,20 +3,6 @@ from tortoise import Tortoise
 from database.models.esim_regional import DataBase_Region, DataBase_RegionalTariff, DataBase_RegionalCountry
 from api.esim_access import fetch, url_packagelist
 
-# Словарь региональных кодов и их "человеческих" названий
-REGION_CODE_MAP = {
-    "EU": "Europe",
-    "SA": "South America",
-    "NA": "North America",
-    "AF": "Africa",
-    "AS": "Asia",
-    "ME": "Middle East",
-    "CN": "China",
-    "CB": "Caribbean",
-    "CA": "Central Asia",
-    "GL": "Global",
-    "SEA": "Southeast Asia"
-}
 
 def parse_slug(slug: str):
     match = re.match(r"(?P<code>[A-Z]+)-\d+_(?P<gb>[\d.]+)_(?P<days>\d+|Daily)", slug)
@@ -43,7 +29,7 @@ async def update_esim_packages_regional():
 
     for package in package_list:
         slug = package.get("slug")
-        price = package.get("price", 0) // 10000
+        price = package.get("price", 0) / 10000
 
         if not slug:
             print(f"⚠️ Пропущено: нет slug в пакете: {package.get('name')}")
@@ -88,3 +74,19 @@ async def reset_region_sequences():
     await conn.execute_query('ALTER SEQUENCE "esim_regions_id_seq" RESTART WITH 1;')
     await conn.execute_query('ALTER SEQUENCE "esim_regional_tariffs_id_seq" RESTART WITH 1;')
     await conn.execute_query('ALTER SEQUENCE "esim_regional_countries_id_seq" RESTART WITH 1;')
+
+
+# Словарь региональных кодов и их названий
+REGION_CODE_MAP = {
+    "EU": "Europe",
+    "SA": "South America",
+    "NA": "North America",
+    "AF": "Africa",
+    "AS": "Asia",
+    "ME": "Middle East",
+    "CN": "China",
+    "CB": "Caribbean",
+    "CA": "Central Asia",
+    "GL": "Global",
+    "SEA": "Southeast Asia"
+}
