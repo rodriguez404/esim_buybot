@@ -21,6 +21,7 @@ from database.services.esim_service_global import updata_esim_packages_global
 from database.services.esim_service_regional import update_esim_packages_regional
 from database.services.esim_service_local import update_esim_packages_local
 
+# Успех
 
 logging.basicConfig(level=logging.DEBUG)
 
