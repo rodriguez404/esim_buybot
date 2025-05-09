@@ -7,7 +7,8 @@ from aiogram import Bot, types, Router, Dispatcher
 from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
-from loader import dp, bot, redis
+from loader import dp, bot
+from redis_cache import r
 
 from handlers.menu import reply_menu, inline_menu
 from handlers.callbacks import callbacks_reply_menu, callbacks_inline_menu
@@ -56,7 +57,7 @@ async def main():
     try:
         await dp.start_polling(bot)
     finally:
-        await redis.close()
+        await r.close()
         await close_session()
         await bot.session.close()
 

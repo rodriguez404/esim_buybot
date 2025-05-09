@@ -1,6 +1,9 @@
 import json
 from typing import Any
 from redis.asyncio import Redis
+from config import REDIS, BOT_TOKEN
+from redis.asyncio import Redis
+from aiogram.fsm.storage.redis import RedisStorage
 
 class RedisCache:
     import logging
@@ -36,3 +39,11 @@ class RedisCache:
 
     async def exists(self, key: str) -> bool:
         return bool(await self.redis.exists(self._format_key(key)))
+
+r = Redis(host=REDIS.HOST_URL, port=int(REDIS.PORT), decode_responses=True)
+cache = RedisCache(r, prefix="tg:", default_ttl=60)
+redis_storage = RedisStorage(r)
+
+# Запись языка пользователя
+def set_user_language(user_id: int, language_code: str):
+    r.set(f"user:{user_id}:lang", language_code)
