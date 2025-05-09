@@ -9,7 +9,7 @@ class DataBase_Region(models.Model):
     tariffs: fields.ReverseRelation["DataBase_RegionalTariff"]
 
     class Meta:
-        table = "esim_regions"
+        table = "esim_regional_regions"
 
 
 # Таблица тарифов для регионов: | Объем ГБ | Количество дней | Цена |

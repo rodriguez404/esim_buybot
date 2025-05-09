@@ -6,7 +6,7 @@ from database.models.esim_global import DataBase_EsimPackageGlobal, DataBase_Esi
 
 from api.esim_access import fetch, url_packagelist
 
-async def updata_esim_packages_global():
+async def update_esim_packages_global():
     await DataBase_EsimPackageGlobal.all().delete()
     await DataBase_EsimCountryGlobal.all().delete()
 
@@ -39,5 +39,5 @@ async def updata_esim_packages_global():
 
 async def reset_sequence():
     conn = Tortoise.get_connection("default")
-    await conn.execute_query('ALTER SEQUENCE esim_package_global_id_seq RESTART WITH 1;')
-    await conn.execute_query('ALTER SEQUENCE esim_countries_global_id_seq RESTART WITH 1;')
+    await conn.execute_query('ALTER SEQUENCE esim_global_package_id_seq RESTART WITH 1;')
+    await conn.execute_query('ALTER SEQUENCE esim_global_countries_id_seq RESTART WITH 1;')

@@ -1,0 +1,76 @@
+{
+  "button.replay_menu.buy_esim": "🛒 Buy eSIM",
+  "button.replay_menu.my_esim": "📱 My eSIMs",
+  "button.replay_menu.settings": "⚙️ Settings",
+  "button.replay_menu.help": "📖 Help",
+  "text.replay_menu.placeholder": "Choose an option",
+  "text.replay_menu.text_menu": "📱 *TelegramPaymentBot* — mobile internet operator *eSIM*:\n\n    • 🌍 Coverage in *190+ countries* (3G, 4G, 5G)\n    • ⚡ High speed\n    • 🔒 Secure connection\n    • 📶 Tethering mode\n    • 💸 Lowest prices\n\n\n    Choose the direction and tariff that suits you and use mobile internet *within a minute after payment*.\n\n    *eSIM from TelegramPaymentBot* can be used simultaneously with your *primary SIM card*.\n\n    ➡️ Go to the _\"Buy eSIM\"_ menu or use the search below.\n    ⚙️ You can change the payment method in the _\"Settings\"_ menu.",
+
+
+  "button.inline_menu.but_esim.popular_destinations": "🔥 Popular destinations",
+  "button.inline_menu.buy_esim.local_esim": "Local eSIM",
+  "button.inline_menu.buy_esim.regional_esim": "Regional eSIM",
+  "button.inline_menu.buy_esim.global_esim": "International eSIM",
+  "text.inline_menu.buy_esim.text_menu": "*Buy eSIM*\nYou can buy an eSIM for a specific country or a certain region:",
+
+
+  "text.inline_menu.buy_esim.local_esim.text_menu": "*🌍 Local eSIM packages:*\nPlease select the country where you need mobile internet:",
+
+  "text.inline_menu.buy_esim.local_esim.all_tariffs.text_menu": "*🌍 Local eSIM packages:*\nPlease select the required amount of internet traffic:",
+
+  "button.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff": "Buy eSIM • {price}$",
+  "text.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff.text_menu": "*🌍 Local eSIM*\nYou have selected an eSIM with a tariff of *{gb} GB for {days} days*. The tariff also includes:\n   • Unlimited speed;\n   • Secure connection;\n   • Tethering mode.\n\n⚠️ The eSIM provides internet traffic only, which works in the specified countries. No identity verification is required to issue the eSIM.\n\nAfter payment, you will receive a QR code and additional information for eSIM installation. The validity period of the eSIM starts from the moment it is activated on your device.\n\n---------\n\nBefore purchasing an eSIM, please ensure that your device is supported (iOS (https://t.me/fedafone_bot/ios_ru), Android (https://t.me/fedafone_bot/android_ru), Windows (https://t.me/fedafone_bot/windows_ru)).\n\nBy clicking the Buy eSIM button, you agree to the terms and conditions (https://t.me/fedafone_bot/terms_ru).\n\n💳 You can change the payment method in the Settings menu.",
+
+
+  "text.inline_menu.buy_esim.regional_esim.text_menu": "*🌍 Regional eSIM packages:*\nPlease select the region where you need mobile internet:",
+
+  "text.inline_menu.buy_esim.regional_esim.all_tariffs.text_menu": "*🌍 Regional eSIM packages:*\nPlease select the required amount of internet traffic:",
+
+  "button.inline_menu.buy_esim.regional_esim.all_tariffs.current_tariff": "Buy eSIM • {price}$",
+  "text.inline_menu.buy_esim.regional_esim.all_tariffs.current_tariff.text_menu": "*🌍 Regional eSIM*\nYou have selected an eSIM with a tariff of *{gb} GB for {days} days*. The tariff also includes:\n   • Unlimited speed;\n   • Secure connection;\n   • Tethering mode.\n\n🗺️ The eSIM will work in the following countries: {countries}\n\n⚠️ The eSIM provides internet traffic only, which works in the specified countries. No identity verification is required to issue the eSIM.\n\nAfter payment, you will receive a QR code and additional information for eSIM installation. The validity period of the eSIM starts from the moment it is activated on your device.\n\n---------\n\nBefore purchasing an eSIM, please ensure that your device is supported (iOS (https://t.me/fedafone_bot/ios_ru), Android (https://t.me/fedafone_bot/android_ru), Windows (https://t.me/fedafone_bot/windows_ru)).\n\nBy clicking the Buy eSIM button, you agree to the terms and conditions (https://t.me/fedafone_bot/terms_ru).\n\n💳 You can change the payment method in the Settings menu.",
+
+
+  "text.inline_menu.buy_esim.global_esim.text_menu": "*🌍 International eSIM packages:*\nPlease select the required amount of internet traffic:",
+
+  "button.inline_menu.buy_esim.global_esim.current_tariff": "Buy eSIM • {price}$",
+  "text.inline_menu.buy_esim.global_esim.current_tariff.text_menu": "*🌍 International eSIM*\nYou have selected an eSIM with a tariff of *{gb} GB for {days} days*. The tariff also includes:\n   • Unlimited speed;\n   • Secure connection;\n   • Tethering mode.\n\n🗺️ The eSIM will work in the following countries: {countries}\n\n⚠️ The eSIM provides internet traffic only, which works in the specified countries. No identity verification is required to issue the eSIM.\n\nAfter payment, you will receive a QR code and additional information for eSIM installation. The validity period of the eSIM starts from the moment it is activated on your device.\n\n---------\n\nBefore purchasing an eSIM, please ensure that your device is supported (iOS (https://t.me/fedafone_bot/ios_ru), Android (https://t.me/fedafone_bot/android_ru), Windows (https://t.me/fedafone_bot/windows_ru)).\n\nBy clicking the Buy eSIM button, you agree to the terms and conditions (https://t.me/fedafone_bot/terms_ru).\n\n💳 You can change the payment method in the Settings menu.",
+
+
+  "button.keyboards.buy_esim.local_esim.all_tariffs.current_tariff": "{gb} GB for {days} days — {price}$",
+
+  "button.keyboards.buy_esim.regional_esim.all_tariffs.current_tariff": "{gb} GB for {days} days — {price}$",
+
+  "button.keyboards.buy_esim.global_esim": "{gb} GB for {days} days — {price}$",
+
+
+  "text.inline_menu.my_esim.text_menu": "*My eSIMs*\nNone. Would you like to buy an eSIM?",
+
+
+  "button.inline_menu.settings.payment_methods": "Payment methods ⇨",
+  "button.inline_menu.settings.change_language": "Language / Язык",
+  "text.inline_menu.settings.text_menu": "*Settings*\nPlease select the required item:",
+
+  "button.inline_menu.settings.change_language.ru": "\uD83C\uDDF7\uD83C\uDDFA",
+  "button.inline_menu.settings.change_language.en": "\uD83C\uDDEC\uD83C\uDDE7",
+  "text.inline_menu.settings.change_language.text_menu": "*Language / Язык*\nBy default, the language set in your Telegram app or on your device will be used.\nYou can change it to any of the available options:",
+
+
+  "button.inline_menu.help.help_center": "Help Center",
+  "button.inline_menu.help.ios": "iOS",
+  "button.inline_menu.help.android": "Android",
+  "button.inline_menu.help.windows": "Windows",
+  "button.inline_menu.help.website": "Telegram_esim_buybot Website",
+  "button.inline_menu.help.application_for_ios": "Telegram_esim_buybot App for iPhone",
+  "button.inline_menu.help.referral_program": "Referral Program",
+  "text.inline_menu.help.text_menu": "*Help*\nYou can contact technical support directly at @Telegram_esim_buybot or select the desired section:",
+
+
+  "button.next": "➡️ Next",
+  "button.back": "⬅️ Back",
+  "button.menu": "Menu",
+  "button.close": "Close",
+
+
+  "error.tariff_not_found": "⚠️ Error: tariff not found.",
+  "error.countries_not_found": "⚠️ Error: countries not found."
+}

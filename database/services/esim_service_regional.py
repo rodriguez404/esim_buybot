@@ -71,7 +71,7 @@ async def update_esim_packages_regional():
 
 async def reset_region_sequences():
     conn = Tortoise.get_connection("default")
-    await conn.execute_query('ALTER SEQUENCE "esim_regions_id_seq" RESTART WITH 1;')
+    await conn.execute_query('ALTER SEQUENCE "esim_regional_regions_id_seq" RESTART WITH 1;')
     await conn.execute_query('ALTER SEQUENCE "esim_regional_tariffs_id_seq" RESTART WITH 1;')
     await conn.execute_query('ALTER SEQUENCE "esim_regional_countries_id_seq" RESTART WITH 1;')
 

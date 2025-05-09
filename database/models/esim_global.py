@@ -10,7 +10,7 @@ class DataBase_EsimPackageGlobal(models.Model):
     countries: fields.ReverseRelation["DataBase_EsimCountryGlobal"]
 
     class Meta:
-        table = "esim_package_global"
+        table = "esim_global_package"
 
 
 # Таблица стран по тарифам: | Страна | Код страны |
@@ -21,4 +21,4 @@ class DataBase_EsimCountryGlobal(models.Model):
     location_code = fields.CharField(max_length=10)
 
     class Meta:
-        table = "esim_countries_global"
+        table = "esim_global_countries"
