@@ -13,6 +13,9 @@ from handlers.menu import inline_menu, invoice_payment_menu
 from loader import dp, bot
 from config import PAYMENTS_TOKEN
 
+from localization.localization import get_text
+from microservices.get_user_language import get_user_language
+
 @dp.callback_query(F.data == "close_inline_menu")
 async def close_menu_callback(callback: CallbackQuery):
     await callback.message.delete()  # Удаляет сообщение с меню
@@ -31,7 +34,7 @@ async def global_esim_callback(callback: CallbackQuery):
     except Exception as e:
         print(f"Не удалось удалить сообщение пользователя: {e}")
 
-    await inline_menu.inline_menu_global_esim(callback.message)
+    await inline_menu.inline_menu_global_esim(callback)
 
 
 # Международные тарифы eSIM: Купить eSIM -> Международные eSIM -> Конкретный тариф
@@ -52,6 +55,7 @@ async def selected_plan_global(callback: CallbackQuery):
 # Международные тарифы eSIM: Купить eSIM -> Международные eSIM -> Конкретный тариф -> Купить
 @dp.callback_query(F.data.startswith('buy_esim_global_'))
 async def process_buy_esim_global(callback: CallbackQuery):
+    user_language = await get_user_language(callback.from_user.id)
     # Временно - для отладки
     # При клике на кнопку выводит в консоль её callback.data айдишник
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -62,7 +66,7 @@ async def process_buy_esim_global(callback: CallbackQuery):
     # Получаем тариф по ID
     plan = await DataBase_EsimPackageGlobal.get_or_none(id=plan_id)
     if not plan:
-        await callback.message.answer("⚠️ Ошибка: тариф не найден.")
+        await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
 
     # Отправляем инвойс
@@ -82,11 +86,12 @@ async def region_esim_callback(callback: CallbackQuery):
     except Exception as e:
         print(f"Не удалось удалить сообщение пользователя: {e}")
 
-    await inline_menu.inline_menu_regional_esim(callback.message)
+    await inline_menu.inline_menu_regional_esim(callback)
 
 
 @dp.callback_query(lambda c: c.data.startswith("global_page_"))
 async def callback_global_page(callback: types.CallbackQuery):
+    user_language = await get_user_language(callback.from_user.id)
     # Временно - для отладки
     # При клике на кнопку выводит в консоль её callback.data айдишник
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -94,7 +99,7 @@ async def callback_global_page(callback: types.CallbackQuery):
     #
     page = int(callback.data.split("_")[-1])
     plans = await esim_global()
-    kb = buttons_global_esim(plans, page=page)
+    kb = buttons_global_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -102,6 +107,7 @@ async def callback_global_page(callback: types.CallbackQuery):
 
 @dp.callback_query(lambda c: c.data.startswith("regional_page_"))
 async def callback_region_page(callback: types.CallbackQuery):
+    user_language = await get_user_language(callback.from_user.id)
     # Временно - для отладки
     # При клике на кнопку выводит в консоль её callback.data айдишник
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -109,7 +115,7 @@ async def callback_region_page(callback: types.CallbackQuery):
     #
     page = int(callback.data.split("_")[-1])
     plans = await esim_regional()
-    kb = buttons_region_esim(plans, page=page)
+    kb = buttons_region_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -133,6 +139,7 @@ async def selected_plan_region(callback: types.CallbackQuery):
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Переключение страниц по кнопкам "назад", "далее"
 @dp.callback_query(lambda c: c.data.startswith("regional_region_page"))
 async def callback_region_page(callback: types.CallbackQuery):
+    user_language = await get_user_language(callback.from_user.id)
     # Временно - для отладки
     # При клике на кнопку выводит в консоль её callback.data айдишник
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -141,7 +148,7 @@ async def callback_region_page(callback: types.CallbackQuery):
     page = int(callback.data.split("_")[-1])
     region_id = int(callback.data.split("_")[-2])
     plans = await esim_regional_selected_region_plans(region_id)
-    kb = buttons_region_esim_selected(plans, region_id, page=page)
+    kb = buttons_region_esim_selected(plans, region_id, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -164,6 +171,7 @@ async def selected_plan_region(callback: types.CallbackQuery):
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
 @dp.callback_query(F.data.startswith('buy_esim_regional_selected_region_'))
 async def process_buy_esim_regional(callback: CallbackQuery):
+    user_language = await get_user_language(callback.from_user.id)
     # Временно - для отладки
     # При клике на кнопку выводит в консоль её callback.data айдишник
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -175,7 +183,7 @@ async def process_buy_esim_regional(callback: CallbackQuery):
     # Получаем тариф по ID
     plan = await DataBase_RegionalTariff.get_or_none(id=plan_id)
     if not plan:
-        await callback.message.answer("⚠️ Ошибка: тариф не найден.")
+        await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
 
     # Отправляем инвойс
@@ -194,11 +202,12 @@ async def local_countries_esim_callback(callback: CallbackQuery):
     except Exception as e:
         print(f"Не удалось удалить сообщение пользователя: {e}")
 
-    await inline_menu.inline_menu_esim_local_countries(callback.message)
+    await inline_menu.inline_menu_esim_local_countries(callback)
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Страны (Переключение между кнопками "назад" и "далее")
 @dp.callback_query(lambda c: c.data.startswith("countries_list_page_"))
 async def callback_local_countries_list_page(callback: types.CallbackQuery):
+    user_language = await get_user_language(callback.from_user.id)
     # Временно - для отладки
     # При клике на кнопку выводит в консоль её callback.data айдишник
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -206,7 +215,7 @@ async def callback_local_countries_list_page(callback: types.CallbackQuery):
     #
     page = int(callback.data.split("_")[-1])
     countries_list = await esim_local_countries()
-    kb = buttons_local_countries_esim(countries_list, page=page)
+    kb = buttons_local_countries_esim(countries_list, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -245,6 +254,7 @@ async def selected_plan_local(callback: types.CallbackQuery):
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная Страна -> Все тарифы по стране -> Переключение страниц по кнопкам "назад", "далее"
 @dp.callback_query(lambda c: c.data.startswith("selected_country_id_page_"))
 async def callback_region_page(callback: types.CallbackQuery):
+    user_language = await get_user_language(callback.from_user.id)
     # Временно - для отладки
     # При клике на кнопку выводит в консоль её callback.data айдишник
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -253,7 +263,7 @@ async def callback_region_page(callback: types.CallbackQuery):
     page = int(callback.data.split("_")[-1])
     country_id = int(callback.data.split("_")[-2])
     plans = await esim_local_selected_country_plans(country_id)
-    kb = buttons_local_esim_selected(plans, country_id, page=page)
+    kb = buttons_local_esim_selected(plans, country_id, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -278,19 +288,32 @@ async def process_buy_esim_local(callback: CallbackQuery):
     
     await invoice_payment_menu.send_payment_invoice(callback, plan)
 
-# ТЕСТОВЫЙ МУСОР ДЛЯ ПЛАТЕЖКИ
+# Настройки: Язык / Language
+@dp.callback_query(F.data == "change_language_inline_menu")
+async def settings_change_language(callback: CallbackQuery):
+    try:
+        await callback.message.delete()
+    except Exception as e:
+        print(f"Не удалось удалить сообщение пользователя: {e}")
+
+    await inline_menu.inline_menu_settings_change_language(callback)
+
+# ТЕСТОВЫЙ МУСОР ДЛЯ ПЛАТЕЖКИ(НЕ МУСОР, Я ПЕРЕДУМАЛ)
 @dp.callback_query()
 async def handle_callback(callback: CallbackQuery):
     data = callback.data
-    if data == "inline_menu_buy_eSIM":
+    if data == "inline_menu_buy_eSIM_callback":
         await callback.message.delete()
-        await inline_menu.inline_menu_buy_eSIM(callback.message)
+        await inline_menu.inline_menu_buy_eSIM_callback(callback)
+    if data == "inline_menu_settings_callback":
+        await callback.message.delete()
+        await inline_menu.inline_menu_settings_callback(callback)
     elif data == "inline_menu_global_esim":
         await callback.message.delete()
-        await inline_menu.inline_menu_buy_eSIM_ru(callback.message)
+        await inline_menu.inline_menu_buy_eSIM_ru(callback)
     elif data == "btn1":
         await callback.message.delete()
-        await inline_menu.inline_menu_buy_eSIM_ru(callback.message)
+        await inline_menu.inline_menu_buy_eSIM_ru(callback)
 
     await callback.answer()
 
