@@ -278,48 +278,6 @@ async def process_buy_esim_local(callback: CallbackQuery):
     
     await invoice_payment_menu.send_payment_invoice(callback, plan)
 
-# Настройки -> Язык / Language
-@dp.callback_query(F.data == "choose_language")
-async def language_list(callback: CallbackQuery):
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
-
-    from aiogram.types import InlineKeyboardButton
-    kb = [
-        InlineKeyboardButton(text="Русский", callback_data="language_ru"),
-        InlineKeyboardButton(text="English", callback_data="language_en")
-    ]
-
-    text = (
-        f"\n*🌍 Пожалуйста, выберите Язык:*\n"
-        "Please, select a Language:"
-    )
-
-    await callback.message.answer(text, reply_markup=kb, parse_mode="Markdown")
-
-@dp.callback_query(F.data.startswith("language_"))
-async def choose_language_click(callback: CallbackQuery):
-
-    from redis_cache import set_user_language
-
-    lang = str(callback.data.split("_")[-1])
-    user_id = CallbackQuery.from_user.id
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
-
-    set_user_language(user_id, lang)
-
-    text = {
-        "ru": "Ваш язык успешно сохранён.",
-        "en": "Language saved successfuly."
-    }
-
-    await callback.message.answer(text[lang], parse_mode="Markdown")
-
 # ТЕСТОВЫЙ МУСОР ДЛЯ ПЛАТЕЖКИ
 @dp.callback_query()
 async def handle_callback(callback: CallbackQuery):

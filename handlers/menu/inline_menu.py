@@ -9,7 +9,6 @@ from handlers.keyboards.buttons_menu import buttons_global_esim, buttons_region_
 from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
 from database.models.esim_regional import DataBase_RegionalCountry, DataBase_RegionalTariff
 from database.models.esim_local import DataBase_LocalTariff
-from localization.get_language import text_with_user_lang
 
 
 #Купить eSIM
@@ -148,7 +147,25 @@ async def inline_menu_regional_esim_tariff(callback: CallbackQuery):
     )
 
     # Основной текст
-    text = text_with_user_lang(user_id, "responses", "region_tariff")
+    text = (
+        "*🌍 Региональная eSIM*\n"
+        f"Вы выбрали eSIM с тарифом *{plan.gb} ГБ на {plan.days} дней*. В тариф также входит:\n"
+        "   • Неограниченная скорость;\n"
+        "   • Безопасное соединение;\n"
+        "   • Режим модема.\n\n"
+        f"🗺️ eSIM будет работать в следующих странах: {countries_text}\n\n"
+        "⚠️ На eSIM доступен только интернет-трафик, который работает в указанных странах. "
+        "Для оформления eSIM не требуется удостоверение личности.\n\n"
+        "После оплаты Вы получите QR-код и дополнительную информацию для установки eSIM. "
+        "Срок действия eSIM отсчитывается с момента ее активации на Вашем устройстве.\n\n"
+        "---------\n\n"
+        "Перед покупкой eSIM, пожалуйста, убедитесь, что Ваше устройство поддерживается "
+        "(iOS (https://t.me/fedafone_bot/ios_ru), Android (https://t.me/fedafone_bot/android_ru), "
+        "Windows (https://t.me/fedafone_bot/windows_ru)).\n\n"
+        "Нажимая кнопку Купить eSIM Вы соглашаетесь с условиями и положениями "
+        "(https://t.me/fedafone_bot/terms_ru).\n\n"
+        "💳 Изменить способ оплаты можно в меню Настройки."
+    )
 
     await callback.message.answer(text, reply_markup=kb, parse_mode="Markdown")
 
@@ -252,7 +269,7 @@ async def inline_menu_settings(message: types.Message):
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="Способы оплаты ⇨", callback_data="btn1")],
-            [InlineKeyboardButton(text="Язык / Language ⇨", callback_data="choose_language")],
+            [InlineKeyboardButton(text="Язык / Language ⇨", callback_data="btn2")],
             [InlineKeyboardButton(text="Закрыть", callback_data="close_inline_menu")]
         ]
     )
