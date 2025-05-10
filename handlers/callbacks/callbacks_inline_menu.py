@@ -11,7 +11,7 @@ from microservices.esim_lists import esim_global, esim_regional, esim_regional_s
 from handlers.menu import inline_menu, invoice_payment_menu
 from handlers.menu.reply_menu import show_reply_menu
 
-from loader import dp, bot, router
+from loader import bot, router
 
 from localization.localization import get_text
 from microservices.get_user_language import get_user_language

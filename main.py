@@ -1,15 +1,13 @@
 import logging
 import asyncio
 
-from redis import Redis
 from api.http_client import close_session
 
-import config
-from aiogram import Bot, types, Router, Dispatcher
+from aiogram import Bot, types
 from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
-from loader import dp, bot, init_dispatcher
+from loader import bot, init_dispatcher
 from redis_client import get_redis
 
 from handlers.menu import reply_menu, inline_menu
@@ -27,6 +25,7 @@ from database.services.esim_service_regional import update_esim_packages_regiona
 from database.services.esim_service_local import update_esim_packages_local
 
 from loader import router
+from redis_client import get_redis
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -62,7 +61,7 @@ async def main():
     try:
         await dp.start_polling(bot)
     finally:
-        # await redis.close()
+        await get_redis().close()
         await close_session()
         await bot.session.close()
 

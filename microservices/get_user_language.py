@@ -7,8 +7,6 @@ import logging
 async def get_user_language(user_id: int) -> str:
     redis = get_redis()
     # Сначала проверяем кэш Redis
-    print(redis)
-    print("Тип клиента Redis:", type(redis))
     if redis is not NoneType and redis is not None and redis is not isinstance(redis, AsyncDummyRedis):
         lang_bytes = await redis.get(f"user_lang:{user_id}")
         if lang_bytes:

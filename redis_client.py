@@ -1,6 +1,5 @@
 import json
-from types import CoroutineType
-from typing import Any, Coroutine
+from typing import Any
 from redis.asyncio import Redis
 from config import REDIS
 from redis.exceptions import ConnectionError
@@ -86,9 +85,8 @@ async def init_redis_connection(host=REDIS.HOST_URL, port=6379):
         print(f"Ошибка при работе с Redis: {err}")
         return AsyncDummyRedis()
 
+
 def get_redis():
-    print("get_redis_print:",redis_client)
-    print(redis_is_working)
     if (redis_is_working):
         return redis_client
     else:

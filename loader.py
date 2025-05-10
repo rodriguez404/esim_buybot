@@ -7,19 +7,6 @@ from redis_client import AsyncDummyRedis, init_redis_connection
 
 bot = Bot(token=BOT_TOKEN)
 router = Router()
-# dp = Dispatcher(storage=MemoryStorage())
-# dp.include_router(router)
-
-# async def load_redis():
-#     # Опциональное подключение Redis
-#     redis = await init_redis_connection()
-#     print(redis)
-
-#     if redis is not None and hasattr(redis, "execute_command"):
-#         from aiogram.fsm.storage.redis import RedisStorage
-#         redis_storage = RedisStorage(redis=redis)
-#         global dp
-#         dp = Dispatcher(storage=redis_storage)
 
 dp = None  # будет создан после проверки Redis
 
