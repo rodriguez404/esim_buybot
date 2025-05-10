@@ -41,7 +41,7 @@ class RedisCache:
     async def exists(self, key: str) -> bool:
         return bool(await self.r.exists(self._format_key(key)))
 
-# Заглушка, если подключение к Redis не удалось - логирует ошибки
+# Заглушка, если подключение к Redis не удалось - должен логировать ошибки
 class AsyncDummyRedis:
     async def get(self, *args, **kwargs):
         return None
@@ -58,7 +58,7 @@ class AsyncDummyRedis:
             return None
         return method
     
-
+# Попытка подключения к серверу. Возвращает заглушку, если не удалось
 async def get_redis_connection(host=REDIS.HOST_URL, port=6379):
     redis_client = None
     try:
