@@ -41,16 +41,15 @@ async def handle_help(message: types.Message):
 
     await inline_menu.inline_menu_help(message)"""
 
-from aiogram import types
+from aiogram import types, Router
 from aiogram.filters import Command
-from loader import dp
+from loader import dp, router
 from handlers.menu import inline_menu
 from localization.localization import get_text
 from microservices.get_user_language import get_user_language
 
-
 # Обработчик для всех кнопок reply меню с учётом языка
-@dp.message(~Command(commands=["start", "id"]))
+@router.message(~Command(commands=["start", "id"]))
 async def handle_reply_menu_buttons(message: types.Message):
     user_language = await get_user_language(message.from_user.id)
 

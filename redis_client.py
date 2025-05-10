@@ -2,7 +2,6 @@ import json
 from types import CoroutineType
 from typing import Any, Coroutine
 from redis.asyncio import Redis
-# from aiogram.fsm.storage.redis import RedisStorage
 from config import REDIS
 from redis.exceptions import ConnectionError
 import logging
@@ -62,14 +61,17 @@ class AsyncDummyRedis:
 
 # Попытка подключения к серверу. Возвращает заглушку, если не удалось
 redis_client: Redis | None = None
+redis_is_working: bool = False
 async def init_redis_connection(host=REDIS.HOST_URL, port=6379):
+    global redis_client
     try:
-        global redis_client
         redis_client = Redis(host=host, port=port, socket_connect_timeout=2)
         # Проверяем соединение
         pong = await redis_client.ping()
         if pong:
             logging.info("✅ Успешное подключение к Redis")
+            global redis_is_working
+            redis_is_working = True
         else:
             logging.warning("❌ Redis недоступен, используется заглушка")
             return AsyncDummyRedis() # Возвращает заглушку, если не удалось подключиться
@@ -83,9 +85,11 @@ async def init_redis_connection(host=REDIS.HOST_URL, port=6379):
     except Exception as err:
         print(f"Ошибка при работе с Redis: {err}")
         return AsyncDummyRedis()
-    
-def get_redis():
-    from loader import redis_client # ← импортируем каждый раз, чтобы получать актуальное значение, а не закэшированное единожды при первом импорте
-    return redis_client or AsyncDummyRedis()
 
-# cache = RedisCache()
+def get_redis():
+    print("get_redis_print:",redis_client)
+    print(redis_is_working)
+    if (redis_is_working):
+        return redis_client
+    else:
+        return AsyncDummyRedis()

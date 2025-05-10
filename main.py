@@ -9,8 +9,8 @@ from aiogram import Bot, types, Router, Dispatcher
 from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
-from loader import dp, bot, try_load_redis
-from redis_client import redis_client
+from loader import dp, bot, init_dispatcher
+from redis_client import get_redis
 
 from handlers.menu import reply_menu, inline_menu
 from handlers.callbacks import callbacks_reply_menu, callbacks_inline_menu
@@ -26,7 +26,7 @@ from database.services.esim_service_global import update_esim_packages_global
 from database.services.esim_service_regional import update_esim_packages_regional
 from database.services.esim_service_local import update_esim_packages_local
 
-# Успех
+from loader import router
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -38,12 +38,12 @@ async def set_commands(bot: Bot):
     ]
     await bot.set_my_commands(commands)
 
-@dp.message(Command("start"))
+@router.message(Command("start"))
 async def cmd_start(message: types.Message):
     await get_or_create_user(message.from_user)
     await reply_menu.show_reply_menu(message)   # После регистрации или проверки, показываем главное меню
 
-@dp.message(Command("id"))
+@router.message(Command("id"))
 async def cmd_id(message: types.Message):
     telegram_user = message.from_user
     await message.answer(str(telegram_user.id))
@@ -56,15 +56,13 @@ async def main():
     # await update_esim_packages_global()
     # await update_esim_packages_regional()
     # await update_esim_packages_local()
-
-    # Опциональное подключение Redis
-    await try_load_redis()
+    dp = await init_dispatcher()
 
     await set_commands(bot) # Устанавливаем команды для меню слева
     try:
         await dp.start_polling(bot)
     finally:
-        # await redis_client.close()
+        # await redis.close()
         await close_session()
         await bot.session.close()
 
