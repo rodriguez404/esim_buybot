@@ -1,5 +1,7 @@
 import logging
 import asyncio
+
+from redis import Redis
 from api.http_client import close_session
 
 import config
@@ -7,7 +9,7 @@ from aiogram import Bot, types, Router, Dispatcher
 from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
-from loader import dp, bot, redis
+from loader import dp, bot, try_load_redis
 
 from handlers.menu import reply_menu, inline_menu
 from handlers.callbacks import callbacks_reply_menu, callbacks_inline_menu
@@ -47,6 +49,9 @@ async def cmd_id(message: types.Message):
 
 
 async def main():
+    # Опциональное подключение Redis
+    redis_client = await try_load_redis()
+
     load_locales() # Загружаем все локализации
 
     await init_db()
@@ -57,7 +62,7 @@ async def main():
     try:
         await dp.start_polling(bot)
     finally:
-        await redis.close()
+        await redis_client.close()
         await close_session()
         await bot.session.close()
 
