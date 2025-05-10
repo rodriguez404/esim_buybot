@@ -2,7 +2,7 @@ import json
 from types import CoroutineType
 from typing import Any, Coroutine
 from redis.asyncio import Redis
-from aiogram.fsm.storage.redis import RedisStorage
+# from aiogram.fsm.storage.redis import RedisStorage
 from config import REDIS
 from redis.exceptions import ConnectionError
 import logging
@@ -41,6 +41,7 @@ class RedisCache:
     async def exists(self, key: str) -> bool:
         return bool(await self.r.exists(self._format_key(key)))
 
+
 # Заглушка, если подключение к Redis не удалось - должен логировать ошибки
 class AsyncDummyRedis:
     async def get(self, *args, **kwargs):
@@ -58,10 +59,12 @@ class AsyncDummyRedis:
             return None
         return method
     
+
 # Попытка подключения к серверу. Возвращает заглушку, если не удалось
-async def get_redis_connection(host=REDIS.HOST_URL, port=6379):
-    redis_client = None
+redis_client: Redis | None = None
+async def init_redis_connection(host=REDIS.HOST_URL, port=6379):
     try:
+        global redis_client
         redis_client = Redis(host=host, port=port, socket_connect_timeout=2)
         # Проверяем соединение
         pong = await redis_client.ping()
@@ -69,17 +72,20 @@ async def get_redis_connection(host=REDIS.HOST_URL, port=6379):
             logging.info("✅ Успешное подключение к Redis")
         else:
             logging.warning("❌ Redis недоступен, используется заглушка")
-            return AsyncDummyRedis()
-        return redis_client
+            return AsyncDummyRedis() # Возвращает заглушку, если не удалось подключиться
+        return redis_client # Возвращает рабочий клиент Redis
     except TimeoutError as err:
         logging.warning(f"⏰ Таймаут при подключении к Redis: {err}")
-        return AsyncDummyRedis()
+        return AsyncDummyRedis() # Возвращает заглушку, если не удалось подключиться
     except ConnectionError as err:
         logging.warning(f"❌ Redis недоступен, используется заглушка: {err}")
         return AsyncDummyRedis() # Возвращает заглушку, если не удалось подключиться
     except Exception as err:
         print(f"Ошибка при работе с Redis: {err}")
         return AsyncDummyRedis()
-
+    
+def get_redis():
+    from loader import redis_client # ← импортируем каждый раз, чтобы получать актуальное значение, а не закэшированное единожды при первом импорте
+    return redis_client or AsyncDummyRedis()
 
 # cache = RedisCache()

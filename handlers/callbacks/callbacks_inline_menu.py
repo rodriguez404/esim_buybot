@@ -17,6 +17,8 @@ from localization.localization import get_text
 from microservices.get_user_language import get_user_language
 from microservices.update_user_language import update_user_language
 
+from redis_client import get_redis
+
 @dp.callback_query(F.data == "close_inline_menu")
 async def close_menu_callback(callback: CallbackQuery):
     await callback.message.delete()  # Удаляет сообщение с меню
@@ -312,6 +314,12 @@ async def settings_change_language(callback: CallbackQuery):
 
     updated = await update_user_language(callback.from_user.id, lang_code)
     user_language = lang_code if updated else current_language
+
+    redis = get_redis()
+    await redis.set(f"user_lang:{callback.from_user.id}", lang_code)
+    # Debug - временно - для отладки
+    print(f"Тип Redis клиента: {type(redis)}")
+    #
 
     if updated:
         await callback.answer(

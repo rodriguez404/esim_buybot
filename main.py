@@ -10,6 +10,7 @@ from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
 from loader import dp, bot, try_load_redis
+from redis_client import redis_client
 
 from handlers.menu import reply_menu, inline_menu
 from handlers.callbacks import callbacks_reply_menu, callbacks_inline_menu
@@ -49,20 +50,21 @@ async def cmd_id(message: types.Message):
 
 
 async def main():
-    # Опциональное подключение Redis
-    redis_client = await try_load_redis()
-
     load_locales() # Загружаем все локализации
 
     await init_db()
     # await update_esim_packages_global()
     # await update_esim_packages_regional()
     # await update_esim_packages_local()
+
+    # Опциональное подключение Redis
+    await try_load_redis()
+
     await set_commands(bot) # Устанавливаем команды для меню слева
     try:
         await dp.start_polling(bot)
     finally:
-        await redis_client.close()
+        # await redis_client.close()
         await close_session()
         await bot.session.close()
 
