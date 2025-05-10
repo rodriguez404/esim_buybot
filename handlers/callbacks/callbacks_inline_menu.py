@@ -1,20 +1,21 @@
 from aiogram import F, types
 
-from aiogram.types import CallbackQuery, LabeledPrice
+from aiogram.types import CallbackQuery
 from aiogram.types import PreCheckoutQuery, Message
 
 from database.models.esim_global import DataBase_EsimPackageGlobal
 from database.models.esim_local import DataBase_LocalTariff
 from database.models.esim_regional import DataBase_RegionalTariff
 from handlers.keyboards.buttons_menu import buttons_region_esim, buttons_global_esim, buttons_region_esim_selected, buttons_local_countries_esim, buttons_local_esim_selected
-from handlers.menu.esim_lists import esim_global, esim_regional, esim_regional_selected_region_plans, esim_local_countries, esim_local_selected_country_plans
+from microservices.esim_lists import esim_global, esim_regional, esim_regional_selected_region_plans, esim_local_countries, esim_local_selected_country_plans
 from handlers.menu import inline_menu, invoice_payment_menu
+from handlers.menu.reply_menu import show_reply_menu
 
 from loader import dp, bot
-from config import PAYMENTS_TOKEN
 
 from localization.localization import get_text
 from microservices.get_user_language import get_user_language
+from microservices.update_user_language import update_user_language
 
 @dp.callback_query(F.data == "close_inline_menu")
 async def close_menu_callback(callback: CallbackQuery):
@@ -297,6 +298,34 @@ async def settings_change_language(callback: CallbackQuery):
         print(f"Не удалось удалить сообщение пользователя: {e}")
 
     await inline_menu.inline_menu_settings_change_language(callback)
+
+
+# Настройки: Язык / Language -> RU/EN (Вполне универсальна, для дальнейшего расширения локализации добавляем только колбек в нужной форме)
+@dp.callback_query(F.data.in_({"change_language_ru_inline_menu", "change_language_en_inline_menu"}))
+async def settings_change_language(callback: CallbackQuery):
+    lang_code = callback.data.split("_")[2]
+    current_language = await get_user_language(callback.from_user.id)
+
+    if lang_code == current_language:
+        await callback.answer(get_text(current_language, "notification.inline_menu.settings.change_language.already_selected"), show_alert=False)
+        return
+
+    updated = await update_user_language(callback.from_user.id, lang_code)
+    user_language = lang_code if updated else current_language
+
+    if updated:
+        await callback.answer(
+            get_text(user_language, "notification.inline_menu.settings.change_language.language_updated"), show_alert=False)
+        try:
+            await callback.message.delete()
+        except Exception as e:
+            print(f"Не удалось удалить сообщение пользователя: {e}")
+
+        await show_reply_menu(callback.message, user_language=user_language)
+
+    else:
+        await callback.answer(get_text(user_language, "error.change_language"), show_alert=False)
+
 
 # ТЕСТОВЫЙ МУСОР ДЛЯ ПЛАТЕЖКИ(НЕ МУСОР, Я ПЕРЕДУМАЛ)
 @dp.callback_query()

@@ -11,5 +11,6 @@ redis_storage = RedisStorage(redis)
 
 bot = Bot(token=BOT_TOKEN)
 router = Router()
-dp = Dispatcher(storage=redis_storage) #dp = Dispatcher()
+#dp = Dispatcher(storage=redis_storage)
+dp = Dispatcher()
 dp.include_router(router)

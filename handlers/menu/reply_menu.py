@@ -4,9 +4,9 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from localization.localization import get_text
 from microservices.get_user_language import get_user_language
 
-
-async def show_reply_menu(message: types.Message):
-    user_language = await get_user_language(message.from_user.id)
+async def show_reply_menu(message: types.Message, user_language: str = None):
+    if not user_language:
+        user_language = await get_user_language(message.from_user.id)
 
     kb = ReplyKeyboardMarkup(
         keyboard=[
