@@ -8,13 +8,15 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 from database.models.esim_global import DataBase_EsimPackageGlobal
 from database.models.esim_regional import DataBase_Region, DataBase_RegionalCountry, DataBase_RegionalTariff
 
+from microservices.format_number_UI import format_number
+
 async def esim_global():
     plans = []
 
     packages = await DataBase_EsimPackageGlobal.all()
 
     for package in packages:
-        plans.append([package.id, package.gb, package.days, package.price])
+        plans.append([package.id, format_number(package.gb), package.days, format_number(package.price)])
 
     # Сортировка: по объему, затем по количеству дней, затем по цене
     plans.sort(key=lambda x: (x[1], x[2], x[3]))
@@ -41,7 +43,7 @@ async def esim_regional_selected_region_plans(region_id):
     packages = await DataBase_RegionalTariff.filter(region=region_id).all()
 
     for package in packages:
-        plans.append([package.id, package.gb, package.days, package.price])
+        plans.append([package.id, format_number(package.gb), package.days, format_number(package.price)])
 
     # Сортировка: по объему, затем по количеству дней, затем по цене
     plans.sort(key=lambda x: (x[1], x[2], x[3]))
@@ -68,7 +70,7 @@ async def esim_local_selected_country_plans(country_id):
     packages = await DataBase_LocalTariff.filter(country=country_id).all()
 
     for package in packages:
-        plans.append([package.id, package.gb, package.days, package.price])
+        plans.append([package.id, format_number(package.gb), package.days, format_number(package.price)])
 
     # Сортировка: по объему, затем по количеству дней, затем по цене
     plans.sort(key=lambda x: (x[1], x[2], x[3]))

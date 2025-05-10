@@ -53,6 +53,8 @@
   "button.inline_menu.settings.change_language.ru": "\uD83C\uDDF7\uD83C\uDDFA",
   "button.inline_menu.settings.change_language.en": "\uD83C\uDDEC\uD83C\uDDE7",
   "text.inline_menu.settings.change_language.text_menu": "*Language / Язык*\nBy default, the language set in your Telegram app or on your device will be used.\nYou can change it to any of the available options:",
+  "notification.inline_menu.settings.change_language.language_updated": "Language updated",
+  "notification.inline_menu.settings.change_language.already_selected": "This language has already been selected",
 
 
   "button.inline_menu.help.help_center": "Help Center",
@@ -72,5 +74,6 @@
 
 
   "error.tariff_not_found": "⚠️ Error: tariff not found.",
-  "error.countries_not_found": "⚠️ Error: countries not found."
+  "error.countries_not_found": "⚠️ Error: countries not found.",
+  "error.change_language": "⚠️ Error: Couldn't update the language."
 }

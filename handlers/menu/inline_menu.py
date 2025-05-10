@@ -1,9 +1,7 @@
-import re
-
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
-from handlers.menu import esim_lists
+from microservices import esim_lists
 
 from handlers.keyboards.buttons_menu import buttons_global_esim, buttons_region_esim, buttons_region_esim_selected, buttons_local_countries_esim, buttons_local_esim_selected
 from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
@@ -308,8 +306,14 @@ async def inline_menu_settings_change_language(callback: CallbackQuery):
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=lang_ru_text, callback_data="None"), InlineKeyboardButton(text=lang_en_text, callback_data="None")],
-            [InlineKeyboardButton(text=get_text(user_language, "button.menu"),callback_data="inline_menu_settings_callback"),InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
+            [
+                InlineKeyboardButton(text=lang_ru_text, callback_data="change_language_ru_inline_menu"),
+                InlineKeyboardButton(text=lang_en_text, callback_data="change_language_en_inline_menu")
+            ],
+            [
+                InlineKeyboardButton(text=get_text(user_language, "button.menu"),callback_data="inline_menu_settings_callback"),
+                InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
+            ]
         ]
     )
 
