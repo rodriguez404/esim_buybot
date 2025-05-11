@@ -88,5 +88,7 @@ REGION_CODE_MAP = {
     "CB": "Caribbean",
     "CA": "Central Asia",
     "GL": "Global",
-    "SEA": "Southeast Asia"
+    "SEA": "Southeast Asia",
+    "SGMYTH": "Southeast Asia",
+    "CNJPKR": "East Asia"
 }

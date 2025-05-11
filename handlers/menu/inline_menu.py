@@ -4,8 +4,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 from microservices import esim_lists
 
 from handlers.keyboards.buttons_menu import buttons_global_esim, buttons_region_esim, buttons_region_esim_selected, buttons_local_countries_esim, buttons_local_esim_selected
-from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
-from database.models.esim_regional import DataBase_RegionalCountry, DataBase_RegionalTariff
+from database.models.esim_global import DataBase_EsimPackageGlobal
+from database.models.esim_regional import DataBase_RegionalTariff
 from database.models.esim_local import DataBase_LocalTariff
 
 from localization.localization import get_text
@@ -58,7 +58,7 @@ async def inline_menu_buy_eSIM_callback(callback: CallbackQuery):
 async def inline_menu_esim_local_countries(callback: CallbackQuery):
     user_language = await get_user_language(callback.from_user.id)
 
-    data = await esim_lists.esim_local_countries()
+    data = await esim_lists.esim_local_countries(user_language)
     kb = buttons_local_countries_esim(data, user_language, page=0)
 
     await callback.message.answer(
@@ -119,7 +119,7 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery):
 async def inline_menu_regional_esim(callback: CallbackQuery):
     user_language = await get_user_language(callback.from_user.id)
 
-    data = await esim_lists.esim_regional()
+    data = await esim_lists.esim_regional(user_language)
     kb = buttons_region_esim(data, user_language, page=0)
 
     await callback.message.answer(

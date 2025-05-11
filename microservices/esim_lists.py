@@ -11,17 +11,16 @@ from database.models.esim_regional import DataBase_Region, DataBase_RegionalCoun
 from microservices.format_number_UI import format_number
 from microservices.code_to_flag import code_to_flag
 
-from localization.localization import translate_countries
+from localization.localization import translate_countries, translate_regions
 
 
-
-async def esim_local_countries():
+async def esim_local_countries(user_language):
     countries_list = []
 
     countries = await DataBase_LocalCountry.all()
 
     for country in countries:
-        countries_list.append([country.id, country.location_name, country.location_code])
+        countries_list.append([country.id, translate_countries(country.location_name, user_language), code_to_flag(country.location_code)])
 
     # Сортировка по названию страны (по алфавиту)
     countries_list = sorted(countries_list, key=lambda x: x[1])
@@ -43,13 +42,13 @@ async def esim_local_selected_country_plans(country_id):
     return plans
 
 
-async def esim_regional():
+async def esim_regional(user_language):
     plans = []
 
     packages = await DataBase_Region.all()
 
     for package in packages:
-        plans.append([package.id, package.name])
+        plans.append([package.id, translate_regions(package.name, user_language)])
 
     # Сортировка по имени региона (по алфавиту)
     plans = sorted(plans, key=lambda x: x[1])

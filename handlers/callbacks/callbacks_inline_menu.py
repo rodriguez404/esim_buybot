@@ -115,7 +115,7 @@ async def callback_region_page(callback: types.CallbackQuery):
     print("button pressed: ", callback.data)
     #
     page = int(callback.data.split("_")[-1])
-    plans = await esim_regional()
+    plans = await esim_regional(user_language)
     kb = buttons_region_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
@@ -215,7 +215,7 @@ async def callback_local_countries_list_page(callback: types.CallbackQuery):
     print("button pressed: ", callback.data)
     #
     page = int(callback.data.split("_")[-1])
-    countries_list = await esim_local_countries()
+    countries_list = await esim_local_countries(user_language)
     kb = buttons_local_countries_esim(countries_list, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
