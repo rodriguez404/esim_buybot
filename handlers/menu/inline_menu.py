@@ -97,11 +97,6 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery):
         await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
 
-    # # Получаем список стран с кодами
-    # countries = await DataBase_RegionalCountry.filter(tariff=plan_id, country=country_id).values("location_name", "location_code")
-    # countries_text = ", ".join(f"{code_to_flag(c['location_code'])} {c['location_name']}" for c in countries) \
-    #     if countries else get_text(user_language, "error.countries_not_found")
-
     # Клавиатура
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -141,7 +136,6 @@ async def inline_menu_regional_esim_tariffs_list(callback: CallbackQuery):
     region_id = int(callback.data.split("_")[-1])
 
     # Получаем тарифы по ID региона
-
     plans = await esim_lists.esim_regional_selected_region_plans(region_id=region_id)
     kb = buttons_region_esim_selected(plans, region_id=region_id, user_language=user_language, page=0)
 
@@ -165,10 +159,9 @@ async def inline_menu_regional_esim_tariff(callback: CallbackQuery):
         await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
 
-    # Получаем список стран с кодами
-    countries = await DataBase_RegionalCountry.filter(tariff=plan_id, region=region_id).values("location_name", "location_code")
-    countries_text = ", ".join(f"{code_to_flag(c['location_code'])} {c['location_name']}" for c in countries) \
-        if countries else get_text(user_language, "error.countries_not_found")
+    countries_text = await esim_lists.esim_regional_countries(plan_id, region_id, user_language)
+    if not countries_text:
+        countries_text = get_text(user_language, "error.countries_not_found")
 
     # Клавиатура
     kb = InlineKeyboardMarkup(
@@ -214,10 +207,9 @@ async def inline_menu_global_esim_tariff(callback: CallbackQuery):
         await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
 
-    # Получаем список стран с кодами
-    countries = await DataBase_EsimCountryGlobal.filter(package_id=plan.id).values("location_name", "location_code")
-    countries_text = ", ".join(f"{code_to_flag(c['location_code'])} {c['location_name']}" for c in countries) \
-        if countries else get_text(user_language, "error.countries_not_found")
+    countries_text = await esim_lists.esim_global_countries(plan.id, user_language)
+    if not countries_text:
+        countries_text = get_text(user_language, "error.countries_not_found")
 
     # Клавиатура
     kb = InlineKeyboardMarkup(

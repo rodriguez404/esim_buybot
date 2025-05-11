@@ -16,3 +16,16 @@ def load_locales():
 def get_text(lang: str, key: str) -> str:
     """Получает текст по ключу для конкретного языка"""
     return _locales.get(lang, {}).get(key, f"[{key}]")  # Возвращает текст или сам ключ, если не найдено
+
+"""def translate_countries(key: str, lang: str) -> str:
+    return _locales.get(lang, {}).get("countries", {}).get(key, f"[{key}]")"""
+
+
+def translate_countries(key: str, lang: str) -> str:
+    translation = _locales.get(lang, {}).get("countries", {}).get(key, f"[{key}]")
+
+    # Проверяем, если страна не найдена, выводим в консоль
+    if translation == f"[{key}]":
+        print(f"Не удалось найти перевод для страны: {key} на языке {lang}")
+
+    return translation
