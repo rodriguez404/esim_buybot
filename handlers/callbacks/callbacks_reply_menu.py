@@ -46,12 +46,12 @@ from aiogram.filters import Command
 from loader import dp, router
 from handlers.menu import inline_menu
 from localization.localization import get_text
-from microservices.get_user_language import get_user_language
+from database.functions.get_user_lang_from_db import get_user_lang_from_db
 
 # Обработчик для всех кнопок reply меню с учётом языка
 @router.message(~Command(commands=["start", "id"]))
-async def handle_reply_menu_buttons(message: types.Message):
-    user_language = await get_user_language(message.from_user.id)
+async def handle_reply_menu_buttons(message: types.Message, user_language: str):
+    # user_language = await get_user_lang_from_db(message.from_user.id)
 
     # Получаем текст всех возможных кнопок в нужном языке
     button_texts = {

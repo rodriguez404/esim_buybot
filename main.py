@@ -8,7 +8,7 @@ from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
 from loader import bot, init_dispatcher
-from redis_client import get_redis
+from redis_folder.redis_client import get_redis
 
 from handlers.menu import reply_menu, inline_menu
 from handlers.callbacks import callbacks_reply_menu, callbacks_inline_menu
@@ -19,13 +19,13 @@ from localization.localization import load_locales
 
 from database import init_db
 from database.models.user import DataBase_User  # Правильный импорт модели User
-from database.services.user_service import get_or_create_user
+from database.services.user_service import get_or_create_user_db
 from database.services.esim_service_global import update_esim_packages_global
 from database.services.esim_service_regional import update_esim_packages_regional
 from database.services.esim_service_local import update_esim_packages_local
 
 from loader import router
-from redis_client import get_redis
+from redis_folder.redis_client import get_redis
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -39,7 +39,7 @@ async def set_commands(bot: Bot):
 
 @router.message(Command("start"))
 async def cmd_start(message: types.Message):
-    await get_or_create_user(message.from_user)
+    await get_or_create_user_db(message.from_user)
     await reply_menu.show_reply_menu(message)   # После регистрации или проверки, показываем главное меню
 
 @router.message(Command("id"))

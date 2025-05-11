@@ -1,0 +1,42 @@
+from aiogram import BaseMiddleware
+from redis import Redis
+from database.functions import get_user_lang_from_db
+from aiogram.types import TelegramObject, Message, CallbackQuery
+from typing import Callable, Dict, Any, Awaitable
+
+from redis_folder.functions.get_user_lang_from_redis import get_user_lang_from_redis
+from database.functions.get_user_lang_from_db import get_user_lang_from_db
+from redis_folder.redis_client import get_redis
+import logging
+
+
+class I18nMiddleware(BaseMiddleware):
+    async def __call__(
+        self,
+        handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
+        event: TelegramObject,
+        data: Dict[str, Any]
+    ) -> Any:
+        
+        user_id = None
+
+        if isinstance(event, Message) or isinstance(event, CallbackQuery):
+            user_id = event.from_user.id
+
+        if user_id:
+            lang = await get_user_lang_from_redis(user_id)
+            logging.info("[DEBUG]: lang: ",lang)
+            if not lang:
+                lang = await get_user_lang_from_db(user_id)
+                if lang and get_redis() is isinstance(get_redis(), Redis):
+                    await get_redis().setex(f"user_lang:{user_id}", 86400, lang)
+                    logging.info("[DEBUG]: Cache Set")
+                else:
+                    logging.warning("[DEBUG]: Redis Inactive")
+                    logging.warning("[DEBUG]: Redis Client Type:", type(get_redis()))
+
+            data["user_language"] = lang
+            return await handler(event, data)
+
+        data["user_language"] = "ru" # стандартный язык
+        return await handler(event, data)

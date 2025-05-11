@@ -6,18 +6,18 @@ from aiogram.types import PreCheckoutQuery, Message
 from database.models.esim_global import DataBase_EsimPackageGlobal
 from database.models.esim_local import DataBase_LocalTariff
 from database.models.esim_regional import DataBase_RegionalTariff
-from handlers.keyboards.buttons_menu import buttons_region_esim, buttons_global_esim, buttons_region_esim_selected, buttons_local_countries_esim, buttons_local_esim_selected
-from microservices.esim_lists import esim_global, esim_regional, esim_regional_selected_region_plans, esim_local_countries, esim_local_selected_country_plans
+from handlers.keyboards import buttons_menu
+from microservices import esim_lists
 from handlers.menu import inline_menu, invoice_payment_menu
 from handlers.menu.reply_menu import show_reply_menu
 
 from loader import bot, router
 
 from localization.localization import get_text
-from microservices.get_user_language import get_user_language
-from microservices.update_user_language import update_user_language
+from database.functions.get_user_lang_from_db import get_user_lang_from_db
+from microservices.update_user_language import update_user_language_in_db
 
-from redis_client import get_redis
+from redis_folder.redis_client import get_redis
 
 @router.callback_query(F.data == "close_inline_menu")
 async def close_menu_callback(callback: CallbackQuery):
@@ -27,11 +27,6 @@ async def close_menu_callback(callback: CallbackQuery):
 # Международные eSIM: Купить eSIM -> Международные eSIM
 @router.callback_query(F.data == "global_esim_inline_menu")
 async def global_esim_callback(callback: CallbackQuery):
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
     try:
         await callback.message.delete()
     except Exception as e:
@@ -43,11 +38,10 @@ async def global_esim_callback(callback: CallbackQuery):
 # Международные тарифы eSIM: Купить eSIM -> Международные eSIM -> Конкретный тариф
 @router.callback_query(F.data.startswith("global_plan_"))
 async def selected_plan_global(callback: CallbackQuery):
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     try:
         await callback.message.delete()
     except Exception as e:
@@ -57,13 +51,10 @@ async def selected_plan_global(callback: CallbackQuery):
 
 # Международные тарифы eSIM: Купить eSIM -> Международные eSIM -> Конкретный тариф -> Купить
 @router.callback_query(F.data.startswith('buy_esim_global_'))
-async def process_buy_esim_global(callback: CallbackQuery):
-    user_language = await get_user_language(callback.from_user.id)
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+async def process_buy_esim_global(callback: CallbackQuery, user_language: str):
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
     plan_id = int(callback.data.split("_")[-1])
 
     # Получаем тариф по ID
@@ -79,11 +70,6 @@ async def process_buy_esim_global(callback: CallbackQuery):
 # Региональные eSIM: Купить eSIM -> Региональные eSIM
 @router.callback_query(F.data == "region_esim_inline_menu")
 async def region_esim_callback(callback: CallbackQuery):
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
     try:
         await callback.message.delete()
     except Exception as e:
@@ -93,32 +79,28 @@ async def region_esim_callback(callback: CallbackQuery):
 
 
 @router.callback_query(lambda c: c.data.startswith("global_page_"))
-async def callback_global_page(callback: types.CallbackQuery):
-    user_language = await get_user_language(callback.from_user.id)
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+async def callback_global_page(callback: types.CallbackQuery, user_language: str):
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     page = int(callback.data.split("_")[-1])
-    plans = await esim_global()
-    kb = buttons_global_esim(plans, user_language, page=page)
+    plans = await esim_lists.esim_global()
+    kb = buttons_menu.buttons_global_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
 
 
 @router.callback_query(lambda c: c.data.startswith("regional_page_"))
-async def callback_region_page(callback: types.CallbackQuery):
-    user_language = await get_user_language(callback.from_user.id)
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+async def callback_region_page(callback: types.CallbackQuery, user_language: str):
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     page = int(callback.data.split("_")[-1])
-    plans = await esim_regional()
-    kb = buttons_region_esim(plans, user_language, page=page)
+    plans = await esim_lists.esim_regional()
+    kb = buttons_menu.buttons_region_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -127,11 +109,10 @@ async def callback_region_page(callback: types.CallbackQuery):
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Регионы -> Клик по региону для вывода его тарифов
 @router.callback_query(lambda c: c.data.startswith("region_id_"))
 async def selected_plan_region(callback: types.CallbackQuery):
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     try:
         await callback.message.delete()
     except Exception as e:
@@ -141,17 +122,15 @@ async def selected_plan_region(callback: types.CallbackQuery):
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Переключение страниц по кнопкам "назад", "далее"
 @router.callback_query(lambda c: c.data.startswith("regional_region_page"))
-async def callback_region_page(callback: types.CallbackQuery):
-    user_language = await get_user_language(callback.from_user.id)
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+async def callback_region_page(callback: types.CallbackQuery, user_language: str):
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     page = int(callback.data.split("_")[-1])
     region_id = int(callback.data.split("_")[-2])
-    plans = await esim_regional_selected_region_plans(region_id)
-    kb = buttons_region_esim_selected(plans, region_id, user_language, page=page)
+    plans = await esim_lists.esim_regional_selected_region_plans(region_id)
+    kb = buttons_menu.buttons_region_esim_selected(plans, region_id, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -160,11 +139,10 @@ async def callback_region_page(callback: types.CallbackQuery):
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу
 @router.callback_query(lambda c: c.data.startswith("regional_selected_region_plan_"))
 async def selected_plan_region(callback: types.CallbackQuery):
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     try:
         await callback.message.delete()
     except Exception as e:
@@ -173,13 +151,10 @@ async def selected_plan_region(callback: types.CallbackQuery):
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
 @router.callback_query(F.data.startswith('buy_esim_regional_selected_region_'))
-async def process_buy_esim_regional(callback: CallbackQuery):
-    user_language = await get_user_language(callback.from_user.id)
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+async def process_buy_esim_regional(callback: CallbackQuery, user_language: str):
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
 
     plan_id = int(callback.data.split("_")[-1])
 
@@ -195,11 +170,6 @@ async def process_buy_esim_regional(callback: CallbackQuery):
 # Местные eSIM: Купить eSIM -> Местные eSIM
 @router.callback_query(F.data == "local_esim_inline_menu")
 async def local_countries_esim_callback(callback: CallbackQuery):
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
     try:
         await callback.message.delete()
     except Exception as e:
@@ -209,16 +179,14 @@ async def local_countries_esim_callback(callback: CallbackQuery):
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Страны (Переключение между кнопками "назад" и "далее")
 @router.callback_query(lambda c: c.data.startswith("countries_list_page_"))
-async def callback_local_countries_list_page(callback: types.CallbackQuery):
-    user_language = await get_user_language(callback.from_user.id)
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+async def callback_local_countries_list_page(callback: types.CallbackQuery, user_language: str):
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     page = int(callback.data.split("_")[-1])
-    countries_list = await esim_local_countries()
-    kb = buttons_local_countries_esim(countries_list, user_language, page=page)
+    countries_list = await esim_lists.esim_local_countries()
+    kb = buttons_menu.buttons_local_countries_esim(countries_list, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -227,11 +195,10 @@ async def callback_local_countries_list_page(callback: types.CallbackQuery):
 # Местные eSIM: Купить eSIM -> Местне eSIM -> Страны -> Клик по стране для вывода её тарифов
 @router.callback_query(lambda c: c.data.startswith("country_id_"))
 async def selected_plan_region(callback: types.CallbackQuery):
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     try:
         await callback.message.delete()
     except Exception as e:
@@ -242,11 +209,10 @@ async def selected_plan_region(callback: types.CallbackQuery):
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная страна -> Все тарифы по стране -> Клик по конкретному тарифу
 @router.callback_query(lambda c: c.data.startswith("selected_country_id_plan_"))
 async def selected_plan_local(callback: types.CallbackQuery):
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     try:
         await callback.message.delete()
     except Exception as e:
@@ -256,17 +222,15 @@ async def selected_plan_local(callback: types.CallbackQuery):
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная Страна -> Все тарифы по стране -> Переключение страниц по кнопкам "назад", "далее"
 @router.callback_query(lambda c: c.data.startswith("selected_country_id_page_"))
-async def callback_region_page(callback: types.CallbackQuery):
-    user_language = await get_user_language(callback.from_user.id)
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+async def callback_region_page(callback: types.CallbackQuery, user_language: str):
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
+
     page = int(callback.data.split("_")[-1])
     country_id = int(callback.data.split("_")[-2])
-    plans = await esim_local_selected_country_plans(country_id)
-    kb = buttons_local_esim_selected(plans, country_id, user_language, page=page)
+    plans = await esim_lists.esim_local_selected_country_plans(country_id)
+    kb = buttons_menu.buttons_local_esim_selected(plans, country_id, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -275,11 +239,9 @@ async def callback_region_page(callback: types.CallbackQuery):
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
 @router.callback_query(F.data.startswith('buy_esim_selected_country_plan_'))
 async def process_buy_esim_local(callback: CallbackQuery):
-    # Временно - для отладки
-    # При клике на кнопку выводит в консоль её callback.data айдишник
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    #
+
+    # Временно для отладки - выводит в консоль callback.data айдишник
+    print("[DEBUG] Button pressed: ", callback.data)
 
     plan_id = int(callback.data.split("_")[-1])
 
@@ -306,13 +268,13 @@ async def settings_change_language(callback: CallbackQuery):
 @router.callback_query(F.data.in_({"change_language_ru_inline_menu", "change_language_en_inline_menu"}))
 async def settings_change_language(callback: CallbackQuery):
     lang_code = callback.data.split("_")[2]
-    current_language = await get_user_language(callback.from_user.id)
+    current_language = await get_user_lang_from_db(callback.from_user.id)
 
     if lang_code == current_language:
         await callback.answer(get_text(current_language, "notification.inline_menu.settings.change_language.already_selected"), show_alert=False)
         return
 
-    updated = await update_user_language(callback.from_user.id, lang_code)
+    updated = await update_user_language_in_db(callback.from_user.id, lang_code)
     user_language = lang_code if updated else current_language
 
     redis = get_redis()
@@ -335,7 +297,8 @@ async def settings_change_language(callback: CallbackQuery):
         await callback.answer(get_text(user_language, "error.change_language"), show_alert=False)
 
 
-# ТЕСТОВЫЙ МУСОР ДЛЯ ПЛАТЕЖКИ(НЕ МУСОР, Я ПЕРЕДУМАЛ)
+# ТЕСТОВЫЙ МУСОР ДЛЯ ПЛАТЕЖКИ(НЕ МУСОР, Я ПЕРЕДУМАЛ) 
+# - МУСОР, ПЕРЕДЕЛАЕШЬ @rodriguez404 to 4EJlOBEK06
 @router.callback_query()
 async def handle_callback(callback: CallbackQuery):
     data = callback.data
