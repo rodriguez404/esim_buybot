@@ -16,6 +16,7 @@ async def update_esim_packages_global():
     for package in package_list:
         name = package.get("name", "")
         price = package.get("price", 0) / 10000
+        package_code = package.get("packageCode", "")
 
         # Пытаемся извлечь GB и Days
         try:
@@ -26,7 +27,7 @@ async def update_esim_packages_global():
             continue
 
         # Сохраняем только очищенные данные
-        esim_package = await DataBase_EsimPackageGlobal.create(gb=gb, days=days, price=price)
+        esim_package = await DataBase_EsimPackageGlobal.create(package_code=package_code, gb=gb, days=days, price=price)
 
         for country in package.get("locationNetworkList", []):
             await DataBase_EsimCountryGlobal.create(

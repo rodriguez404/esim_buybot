@@ -51,7 +51,7 @@ async def main():
     await init_db()
     # await update_esim_packages_global()
     # await update_esim_packages_regional()
-    # await update_esim_packages_local()
+    await update_esim_packages_local()
     await set_commands(bot) # Устанавливаем команды для меню слева
     try:
         await dp.start_polling(bot)
