@@ -11,11 +11,11 @@ from database.models.esim_local import DataBase_LocalTariff
 from localization.localization import get_text
 from database.functions.get_user_lang_from_db import get_user_lang_from_db
 from microservices.code_to_flag import code_to_flag
+from redis_folder.functions import get_user_lang_from_redis
 
 
 # Купить eSIM
-async def inline_menu_buy_eSIM(message: types.Message):
-    user_language = await get_user_lang_from_db(message.from_user.id)
+async def inline_menu_buy_eSIM(message: types.Message, user_language: str):
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -34,8 +34,7 @@ async def inline_menu_buy_eSIM(message: types.Message):
     )
 
 # Купить eSIM(Дубликат с другим параметром, НЕОБХОДИМ ДЛЯ РАБОТЫ)
-async def inline_menu_buy_eSIM_callback(callback: CallbackQuery):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
+async def inline_menu_buy_eSIM_callback(callback: CallbackQuery, user_language: str):
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -56,7 +55,6 @@ async def inline_menu_buy_eSIM_callback(callback: CallbackQuery):
 
 # Местные eSIM: Купить eSIM -> Местные eSIM
 async def inline_menu_esim_local_countries(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
 
     data = await esim_lists.esim_local_countries()
     kb = buttons_menu.buttons_local_countries_esim(data, user_language, page=0)
@@ -70,7 +68,6 @@ async def inline_menu_esim_local_countries(callback: CallbackQuery, user_languag
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Все тарифы конкретной страны
 async def inline_menu_local_esim_tariffs_list(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
 
     country_id = int(callback.data.split("_")[-1])  # Получаем тарифы по ID региона
 
@@ -86,7 +83,6 @@ async def inline_menu_local_esim_tariffs_list(callback: CallbackQuery, user_lang
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Все тарифы конкретной страны -> Конкретный тариф
 async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
 
     plan_id = int(callback.data.split("_")[-1])
     country_id = int(callback.data.split("_")[-2])
@@ -96,11 +92,6 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: 
     if not plan:
         await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
-
-    # # Получаем список стран с кодами
-    # countries = await DataBase_RegionalCountry.filter(tariff=plan_id, country=country_id).values("location_name", "location_code")
-    # countries_text = ", ".join(f"{code_to_flag(c['location_code'])} {c['location_name']}" for c in countries) \
-    #     if countries else get_text(user_language, "error.countries_not_found")
 
     # Клавиатура
     kb = InlineKeyboardMarkup(
@@ -122,7 +113,6 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: 
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM
 async def inline_menu_regional_esim(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
 
     data = await esim_lists.esim_regional()
     kb = buttons_menu.buttons_region_esim(data, user_language, page=0)
@@ -136,7 +126,6 @@ async def inline_menu_regional_esim(callback: CallbackQuery, user_language: str)
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Все тарифы конкретного региона
 async def inline_menu_regional_esim_tariffs_list(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
 
     region_id = int(callback.data.split("_")[-1])
 
@@ -154,7 +143,6 @@ async def inline_menu_regional_esim_tariffs_list(callback: CallbackQuery, user_l
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Все тарифы конкретного региона -> Конкретный тариф
 async def inline_menu_regional_esim_tariff(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
 
     plan_id = int(callback.data.split("_")[-1])
     region_id = int(callback.data.split("_")[-2])
@@ -190,7 +178,6 @@ async def inline_menu_regional_esim_tariff(callback: CallbackQuery, user_languag
 
 # Международные eSIM: Купить eSIM -> Международные eSIM
 async def inline_menu_global_esim(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
 
     data = await esim_lists.esim_global()
     kb = buttons_menu.buttons_global_esim(data, user_language, page=0)
@@ -204,7 +191,6 @@ async def inline_menu_global_esim(callback: CallbackQuery, user_language: str):
 
 # Международные тарифы eSIM: Купить eSIM -> Международные eSIM -> Конкретный тариф
 async def inline_menu_global_esim_tariff(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
 
     plan_id = int(callback.data.split("_")[-1])
 
@@ -240,7 +226,7 @@ async def inline_menu_global_esim_tariff(callback: CallbackQuery, user_language:
 
 #Мои eSIM
 async def inline_menu_my_eSIM(message: types.Message, user_language: str):
-    # user_language = await get_user_lang_from_db(message.from_user.id)
+    # user_language = await get_user_lang_from_redis(message.from_user.id) or await get_user_lang_from_db(message.from_user.id)
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -257,7 +243,6 @@ async def inline_menu_my_eSIM(message: types.Message, user_language: str):
 
 # Настройки
 async def inline_menu_settings(message: types.Message, user_language: str):
-    # user_language = await get_user_lang_from_db(message.from_user.id)
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -275,7 +260,6 @@ async def inline_menu_settings(message: types.Message, user_language: str):
 
 # Настройки(Дубликат с другим параметром, НЕОБХОДИМ ДЛЯ РАБОТЫ)
 async def inline_menu_settings_callback(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -293,11 +277,13 @@ async def inline_menu_settings_callback(callback: CallbackQuery, user_language: 
 
 
 async def inline_menu_settings_change_language(callback: CallbackQuery, user_language: str):
-    # user_language = await get_user_lang_from_db(callback.from_user.id)
-
+    user_language = await get_user_lang_from_redis(callback.from_user.id) or await get_user_lang_from_db(callback.from_user.id)
+    
     lang_ru_text = get_text(user_language, "button.inline_menu.settings.change_language.ru")
     lang_en_text = get_text(user_language, "button.inline_menu.settings.change_language.en")
 
+    print("[DEBUG]: inline_menu_settings_change_language: user_id: ",callback.from_user.id)
+    print("[DEBUG]: inline_menu_settings_change_language: lang: ",user_language)
     # "✅" к выбранному языку
     if user_language == "ru":
         lang_ru_text = f"✅ {lang_ru_text}"
@@ -311,7 +297,7 @@ async def inline_menu_settings_change_language(callback: CallbackQuery, user_lan
                 InlineKeyboardButton(text=lang_en_text, callback_data="change_language_en_inline_menu")
             ],
             [
-                InlineKeyboardButton(text=get_text(user_language, "button.menu"),callback_data="inline_menu_settings_callback"),
+                InlineKeyboardButton(text=get_text(user_language, "button.menu"), callback_data="inline_menu_settings_callback"),
                 InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
             ]
         ]
@@ -325,7 +311,6 @@ async def inline_menu_settings_change_language(callback: CallbackQuery, user_lan
 
 #Помощь
 async def inline_menu_help(message: types.Message, user_language: str):
-    # user_language = await get_user_lang_from_db(message.from_user.id)
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[

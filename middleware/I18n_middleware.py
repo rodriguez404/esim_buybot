@@ -7,9 +7,7 @@ from typing import Callable, Dict, Any, Awaitable
 from redis_folder.functions.get_user_lang_from_redis import get_user_lang_from_redis
 from database.functions.get_user_lang_from_db import get_user_lang_from_db
 from redis_folder.redis_client import get_redis
-import logging
-
-
+# Единое место обработки языка пользователя для всех хэндлеов
 class I18nMiddleware(BaseMiddleware):
     async def __call__(
         self,
@@ -25,15 +23,10 @@ class I18nMiddleware(BaseMiddleware):
 
         if user_id:
             lang = await get_user_lang_from_redis(user_id)
-            logging.info("[DEBUG]: lang: ",lang)
             if not lang:
                 lang = await get_user_lang_from_db(user_id)
-                if lang and get_redis() is isinstance(get_redis(), Redis):
+                if lang and isinstance(get_redis(), Redis):
                     await get_redis().setex(f"user_lang:{user_id}", 86400, lang)
-                    logging.info("[DEBUG]: Cache Set")
-                else:
-                    logging.warning("[DEBUG]: Redis Inactive")
-                    logging.warning("[DEBUG]: Redis Client Type:", type(get_redis()))
 
             data["user_language"] = lang
             return await handler(event, data)
