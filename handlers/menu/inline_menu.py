@@ -4,8 +4,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQu
 from microservices import esim_lists
 
 from handlers.keyboards import buttons_menu
-from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
-from database.models.esim_regional import DataBase_RegionalCountry, DataBase_RegionalTariff
+from database.models.esim_global import DataBase_EsimPackageGlobal
+from database.models.esim_regional import DataBase_RegionalTariff
 from database.models.esim_local import DataBase_LocalTariff
 
 from localization.localization import get_text

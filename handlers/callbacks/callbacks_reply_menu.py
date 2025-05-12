@@ -12,10 +12,10 @@ async def handle_reply_menu_buttons(message: types.Message):
     user_language = await get_user_lang_from_redis(message.from_user.id) or await get_user_lang_from_db(message.from_user.id)
     # Получаем текст всех возможных кнопок в нужном языке
     button_texts = {
-        get_text(user_language, "button.replay_menu.buy_esim"): inline_menu.inline_menu_buy_eSIM,
-        get_text(user_language, "button.replay_menu.my_esim"): inline_menu.inline_menu_my_eSIM,
-        get_text(user_language, "button.replay_menu.settings"): inline_menu.inline_menu_settings,
-        get_text(user_language, "button.replay_menu.help"): inline_menu.inline_menu_help,
+        get_text(user_language, "button.reply_menu.buy_esim"): inline_menu.inline_menu_buy_eSIM,
+        get_text(user_language, "button.reply_menu.my_esim"): inline_menu.inline_menu_my_eSIM,
+        get_text(user_language, "button.reply_menu.settings"): inline_menu.inline_menu_settings,
+        get_text(user_language, "button.reply_menu.help"): inline_menu.inline_menu_help,
     }
 
     action = button_texts.get(message.text)

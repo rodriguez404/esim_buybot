@@ -11,14 +11,14 @@ async def show_reply_menu(message: types.Message, user_language: str):
 
     kb = ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text=get_text(user_language, "button.replay_menu.buy_esim")), KeyboardButton(text=get_text(user_language, "button.replay_menu.my_esim"))],
-            [KeyboardButton(text=get_text(user_language, "button.replay_menu.settings")), KeyboardButton(text=get_text(user_language, "button.replay_menu.help"))],
+            [KeyboardButton(text=get_text(user_language, "button.reply_menu.buy_esim")), KeyboardButton(text=get_text(user_language, "button.reply_menu.my_esim"))],
+            [KeyboardButton(text=get_text(user_language, "button.reply_menu.settings")), KeyboardButton(text=get_text(user_language, "button.reply_menu.help"))],
         ],
         resize_keyboard=True,
-        input_field_placeholder=get_text(user_language, "text.replay_menu.placeholder")
+        input_field_placeholder=get_text(user_language, "text.reply_menu.placeholder")
     )
     await message.answer(
-        get_text(user_language, "text.replay_menu.text_menu"),
+        get_text(user_language, "text.reply_menu.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
     )

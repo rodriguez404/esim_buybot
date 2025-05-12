@@ -1,10 +1,10 @@
 {
-    "button.replay_menu.buy_esim": "🛒 Buy eSIM",
-    "button.replay_menu.my_esim": "📱 My eSIMs",
-    "button.replay_menu.settings": "⚙️ Settings",
-    "button.replay_menu.help": "📖 Help",
-    "text.replay_menu.placeholder": "Choose an option",
-    "text.replay_menu.text_menu": "📱 *TelegramPaymentBot* — mobile internet operator *eSIM*:\n\n    • 🌍 Coverage in *190+ countries* (3G, 4G, 5G)\n    • ⚡ High speed\n    • 🔒 Secure connection\n    • 📶 Tethering mode\n    • 💸 Lowest prices\n\n\n    Choose the direction and tariff that suits you and use mobile internet *within a minute after payment*.\n\n    *eSIM from TelegramPaymentBot* can be used simultaneously with your *primary SIM card*.\n\n    ➡️ Go to the _\"Buy eSIM\"_ menu or use the search below.\n    ⚙️ You can change the payment method in the _\"Settings\"_ menu.",
+    "button.reply_menu.buy_esim": "🛒 Buy eSIM",
+    "button.reply_menu.my_esim": "📱 My eSIMs",
+    "button.reply_menu.settings": "⚙️ Settings",
+    "button.reply_menu.help": "📖 Help",
+    "text.reply_menu.placeholder": "Choose an option",
+    "text.reply_menu.text_menu": "📱 *TelegramPaymentBot* — mobile internet operator *eSIM*:\n\n    • 🌍 Coverage in *190+ countries* (3G, 4G, 5G)\n    • ⚡ High speed\n    • 🔒 Secure connection\n    • 📶 Tethering mode\n    • 💸 Lowest prices\n\n\n    Choose the direction and tariff that suits you and use mobile internet *within a minute after payment*.\n\n    *eSIM from TelegramPaymentBot* can be used simultaneously with your *primary SIM card*.\n\n    ➡️ Go to the _\"Buy eSIM\"_ menu or use the search below.\n    ⚙️ You can change the payment method in the _\"Settings\"_ menu.",
 
 
     "button.inline_menu.but_esim.popular_destinations": "🔥 Popular destinations",

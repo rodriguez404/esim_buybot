@@ -1,6 +1,5 @@
 from aiogram import BaseMiddleware
 from redis import Redis
-from database.functions import get_user_lang_from_db
 from aiogram.types import TelegramObject, Message, CallbackQuery
 from typing import Callable, Dict, Any, Awaitable
 
