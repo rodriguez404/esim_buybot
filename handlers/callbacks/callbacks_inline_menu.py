@@ -17,6 +17,7 @@ from localization.localization import get_text
 from database.functions.get_user_lang_from_db import get_user_lang_from_db
 from microservices.update_user_language import update_user_language_in_db
 
+from redis_folder.functions.esim_lists_cache import get_cache_esim_global
 from redis_folder.redis_client import get_redis
 
 @router.callback_query(F.data == "close_inline_menu")
@@ -85,7 +86,7 @@ async def callback_global_page(callback: types.CallbackQuery, user_language: str
     print("[DEBUG] Button pressed: ", callback.data)
 
     page = int(callback.data.split("_")[-1])
-    plans = await esim_lists.esim_global()
+    plans = await get_cache_esim_global() or await esim_lists.esim_global()
     kb = buttons_menu.buttons_global_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)

@@ -13,6 +13,7 @@ from database.functions.get_user_lang_from_db import get_user_lang_from_db
 from microservices.code_to_flag import code_to_flag
 from microservices.format_number_UI import format_number
 from redis_folder.functions import get_user_lang_from_redis
+from redis_folder.functions.esim_lists_cache import get_cache_esim_global
 
 
 # Купить eSIM
@@ -178,7 +179,7 @@ async def inline_menu_regional_esim_tariff(callback: CallbackQuery, user_languag
 # Международные eSIM: Купить eSIM -> Международные eSIM
 async def inline_menu_global_esim(callback: CallbackQuery, user_language: str):
 
-    data = await esim_lists.esim_global()
+    data = await get_cache_esim_global() or await esim_lists.esim_global()
     kb = buttons_menu.buttons_global_esim(data, user_language, page=0)
 
     await callback.message.answer(
