@@ -97,7 +97,7 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: 
     # Клавиатура
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff").format(price=plan.price), callback_data=f"buy_esim_selected_country_plan_{country_id}_{plan.id}")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff").format(price=format_number(plan.price)), callback_data=f"buy_esim_selected_country_plan_{country_id}_{plan.id}")],
             [
                 InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"selected_country_id_page_{country_id}_0"),
                 InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
@@ -160,7 +160,7 @@ async def inline_menu_regional_esim_tariff(callback: CallbackQuery, user_languag
     # Клавиатура
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_esim.all_tariffs.current_tariff").format(price=plan.price), callback_data=f"buy_esim_regional_selected_region_{region_id}_{plan.id}")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_esim.all_tariffs.current_tariff").format(price=format_number(plan.price)), callback_data=f"buy_esim_regional_selected_region_{region_id}_{plan.id}")],
             [
                 InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"regional_region_page_{region_id}_0"),
                 InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
@@ -206,7 +206,7 @@ async def inline_menu_global_esim_tariff(callback: CallbackQuery, user_language:
     # Клавиатура
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim.current_tariff").format(price=plan.price), callback_data=f"buy_esim_global_{plan.id}")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim.current_tariff").format(price=format_number(plan.price)), callback_data=f"buy_esim_global_{plan.id}")],
             [
                 InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data="global_esim_inline_menu"),
                 InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")

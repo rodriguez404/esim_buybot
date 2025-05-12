@@ -1,9 +1,11 @@
 from aiogram.types import Update, Message, CallbackQuery, InlineQuery, PollAnswer, ChatMemberUpdated
 import logging
 
+# Для Middleware универсальная функция получения айдишника пользователя
 def get_user_id(event: Update) -> int | None:
-    logging.debug(f"[User ID] Обрабатываем событие {type(event).__name__}")
-    logging.debug(f"[User ID] event.model_dump() = {event.model_dump()}")
+    # logging.debug(f"[User ID] Обрабатываем событие {type(event).__name__}")
+    # logging.debug(f"[User ID] event.model_dump() = {event.model_dump()}") # очень страшные логи
+    
     # Сначала попробуем найти напрямую через from_user
     if hasattr(event, "from_user") and event.from_user and event.from_user.id:
         return event.from_user.id
