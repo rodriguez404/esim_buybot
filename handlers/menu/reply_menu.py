@@ -5,7 +5,7 @@ from localization.localization import get_text
 from database.functions.get_user_lang_from_db import get_user_lang_from_db
 from redis_folder.functions import get_user_lang_from_redis
 
-async def show_reply_menu(message: types.Message, user_language: str = None):
+async def show_reply_menu(message: types.Message, user_language: str):
     if not user_language:
         user_language = await get_user_lang_from_redis(message.from_user.id) or await get_user_lang_from_db(message.from_user.id)
 

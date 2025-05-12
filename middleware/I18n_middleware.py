@@ -28,6 +28,6 @@ class I18nMiddleware(BaseMiddleware):
 
             data["user_language"] = lang
             return await handler(event, data)
-        # else:
-        #     data["user_language"] = "ru" # стандартный язык
-        #     return await handler(event, data)
+
+        data["user_language"] = "ru" # стандартный язык
+        return await handler(event, data)

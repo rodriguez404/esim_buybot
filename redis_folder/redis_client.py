@@ -10,7 +10,7 @@ redis_is_working: bool = False
 async def init_redis_connection(host=REDIS.HOST_URL, port=6379):
     global redis_client
     try:
-        redis_client = Redis(host=host, port=port, socket_connect_timeout=2)
+        redis_client = Redis(host=host, port=port, socket_connect_timeout=3)
         # Проверяем соединение
         pong = await redis_client.ping()
         if pong:

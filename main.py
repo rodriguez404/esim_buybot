@@ -38,9 +38,9 @@ async def set_commands(bot: Bot):
     await bot.set_my_commands(commands)
 
 @router.message(Command("start"))
-async def cmd_start(message: types.Message):
+async def cmd_start(message: types.Message, user_language: str):
     await get_or_create_user_db(message.from_user)
-    await reply_menu.show_reply_menu(message)   # После регистрации или проверки, показываем главное меню
+    await reply_menu.show_reply_menu(message, user_language)   # После регистрации или проверки, показываем главное меню
 
 @router.message(Command("id"))
 async def cmd_id(message: types.Message):
