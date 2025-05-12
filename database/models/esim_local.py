@@ -18,6 +18,7 @@ class DataBase_LocalTariff(models.Model):
     id = fields.IntField(pk=True)
     country = fields.ForeignKeyField("models.DataBase_LocalCountry", related_name="tariffs")
 
+    package_code = fields.CharField(max_length=20)  # Добавляем поле для хранения кода пакета
     gb = fields.FloatField()
     days = fields.IntField()
     price = fields.FloatField()

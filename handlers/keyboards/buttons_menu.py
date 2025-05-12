@@ -7,10 +7,6 @@ from localization.localization import get_text
 # Местные eSIM: Купить eSIM -> Местные eSIM (список стран)
 def buttons_local_countries_esim(countries_list: list[list[int]], user_language: str = "ru", page: int = 0, buttons_per_page: int = 16) -> InlineKeyboardMarkup:
 
-    # Для избежания цикличного импорта - ленивый вариант, т.к. используется только в одной функции,
-    # Если будут нужны флаги в нескольких функциях, лучше переделать
-    from microservices.code_to_flag import code_to_flag
-
     total_pages = (len(countries_list) + buttons_per_page - 1) // buttons_per_page
 
     page = max(0, min(page, total_pages - 1))
@@ -28,14 +24,14 @@ def buttons_local_countries_esim(countries_list: list[list[int]], user_language:
         if i < len(current_page_data):
             country_id, country_name, country_code = current_page_data[i]
             row.append(InlineKeyboardButton(
-                text=f"{code_to_flag(country_code)}{country_name}",
+                text=f"{country_code}{country_name}",
                 callback_data=f"country_id_{country_id}"
             ))
         # Добавляем вторую кнопку в строку (если есть)
         if i + 1 < len(current_page_data):
             country_id, country_name, country_code = current_page_data[i + 1]
             row.append(InlineKeyboardButton(
-                text=f"{code_to_flag(country_code)}{country_name}",
+                text=f"{country_code}{country_name}",
                 callback_data=f"country_id_{country_id}"
             ))
         keyboard.append(row)
