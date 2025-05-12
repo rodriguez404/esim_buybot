@@ -99,7 +99,7 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
     print("[DEBUG] Button pressed: ", callback.data)
 
     page = int(callback.data.split("_")[-1])
-    plans = await esim_lists.esim_regional()
+    plans = await esim_lists.esim_regional(user_language)
     kb = buttons_menu.buttons_region_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
@@ -185,7 +185,7 @@ async def callback_local_countries_list_page(callback: types.CallbackQuery, user
     print("[DEBUG] Button pressed: ", callback.data)
 
     page = int(callback.data.split("_")[-1])
-    countries_list = await esim_lists.esim_local_countries()
+    countries_list = await esim_lists.esim_local_countries(user_language)
     kb = buttons_menu.buttons_local_countries_esim(countries_list, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
@@ -266,9 +266,10 @@ async def settings_change_language(callback: CallbackQuery, user_language: str):
 
 # Настройки: Язык / Language -> RU/EN (Вполне универсальна, для дальнейшего расширения локализации добавляем только колбек в нужной форме)
 @router.callback_query(F.data.in_({"change_language_ru_inline_menu", "change_language_en_inline_menu"}))
-async def settings_change_language(callback: CallbackQuery):
+async def settings_change_language(callback: CallbackQuery, user_language: str):
     lang_code = callback.data.split("_")[2]
-    current_language = await get_user_lang_from_db(callback.from_user.id)
+    # current_language = await get_user_lang_from_db(callback.from_user.id)
+    current_language = user_language
 
     if lang_code == current_language:
         await callback.answer(get_text(current_language, "notification.inline_menu.settings.change_language.already_selected"), show_alert=False)

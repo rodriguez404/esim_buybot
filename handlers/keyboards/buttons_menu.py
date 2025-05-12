@@ -1,6 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from localization.localization import get_text
+from microservices.format_number_UI import format_number
 
 
 
@@ -69,7 +70,7 @@ def buttons_local_esim_selected(plans: list[list[int]], country_id: int, user_la
     # Формируем один столбец для тарифов
     for plan in current_page_data:
         plan_id, gb, days, price = plan
-        text = get_text(user_language, "button.keyboards.buy_esim.local_esim.all_tariffs.current_tariff").format(gb=gb, days=days, price=price)
+        text = get_text(user_language, "button.keyboards.buy_esim.local_esim.all_tariffs.current_tariff").format(gb=format_number(gb), days=days, price=format_number(price))
         callback_data = f"selected_country_id_plan_{country_id}_{plan_id}"
         keyboard.append([InlineKeyboardButton(text=text, callback_data=callback_data)])
 
@@ -144,7 +145,7 @@ def buttons_region_esim_selected(plans: list[list[int]], region_id: int, user_la
     # Формируем один столбец для тарифов
     for plan in current_page_data:
         plan_id, gb, days, price = plan
-        text = get_text(user_language, "button.keyboards.buy_esim.regional_esim.all_tariffs.current_tariff").format(gb=gb, days=days, price=price)
+        text = get_text(user_language, "button.keyboards.buy_esim.regional_esim.all_tariffs.current_tariff").format(gb=format_number(gb), days=days, price=format_number(price))
         callback_data = f"regional_selected_region_plan_{region_id}_{plan_id}"
         keyboard.append([InlineKeyboardButton(text=text, callback_data=callback_data)])
 
@@ -179,7 +180,7 @@ def buttons_global_esim(plans: list[list[int]], user_language: str = "ru", page:
     # Формируем один столбец для тарифов
     for plan in current_page_data:
         plan_id, gb, days, price = plan
-        text = get_text(user_language, "button.keyboards.buy_esim.global_esim").format(gb=gb, days=days, price=price)
+        text = get_text(user_language, "button.keyboards.buy_esim.global_esim").format(gb=format_number(gb), days=days, price=format_number(price))
         callback_data = f"global_plan_{plan_id}"
         keyboard.append([InlineKeyboardButton(text=text, callback_data=callback_data)])
 

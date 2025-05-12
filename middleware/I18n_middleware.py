@@ -4,6 +4,7 @@ from database.functions import get_user_lang_from_db
 from aiogram.types import TelegramObject, Message, CallbackQuery
 from typing import Callable, Dict, Any, Awaitable
 
+from microservices.get_user_id import get_user_id
 from redis_folder.functions.get_user_lang_from_redis import get_user_lang_from_redis
 from database.functions.get_user_lang_from_db import get_user_lang_from_db
 from redis_folder.redis_client import get_redis
@@ -16,10 +17,7 @@ class I18nMiddleware(BaseMiddleware):
         data: Dict[str, Any]
     ) -> Any:
         
-        user_id = None
-
-        if isinstance(event, Message) or isinstance(event, CallbackQuery):
-            user_id = event.from_user.id
+        user_id = get_user_id(event)
 
         if user_id:
             lang = await get_user_lang_from_redis(user_id)
@@ -30,6 +28,6 @@ class I18nMiddleware(BaseMiddleware):
 
             data["user_language"] = lang
             return await handler(event, data)
-
-        data["user_language"] = "ru" # стандартный язык
-        return await handler(event, data)
+        # else:
+        #     data["user_language"] = "ru" # стандартный язык
+        #     return await handler(event, data)

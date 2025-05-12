@@ -1,7 +1,4 @@
 from aiogram.types import CallbackQuery, LabeledPrice
-
-from database.models.esim_global import DataBase_EsimPackageGlobal
-
 from config import PAYMENTS_TOKEN
 from loader import bot
 

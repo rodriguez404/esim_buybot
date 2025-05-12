@@ -1,6 +1,6 @@
 
 from database.models.esim_local import DataBase_LocalCountry, DataBase_LocalTariff
-from database.models.esim_global import DataBase_EsimPackageGlobal
+from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
 from database.models.esim_regional import DataBase_Region, DataBase_RegionalCountry, DataBase_RegionalTariff
 
 from microservices.format_number_UI import format_number

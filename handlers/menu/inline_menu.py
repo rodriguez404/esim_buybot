@@ -11,6 +11,7 @@ from database.models.esim_local import DataBase_LocalTariff
 from localization.localization import get_text
 from database.functions.get_user_lang_from_db import get_user_lang_from_db
 from microservices.code_to_flag import code_to_flag
+from microservices.format_number_UI import format_number
 from redis_folder.functions import get_user_lang_from_redis
 
 
@@ -56,7 +57,7 @@ async def inline_menu_buy_eSIM_callback(callback: CallbackQuery, user_language: 
 # Местные eSIM: Купить eSIM -> Местные eSIM
 async def inline_menu_esim_local_countries(callback: CallbackQuery, user_language: str):
 
-    data = await esim_lists.esim_local_countries()
+    data = await esim_lists.esim_local_countries(user_language)
     kb = buttons_menu.buttons_local_countries_esim(data, user_language, page=0)
 
     await callback.message.answer(
@@ -105,7 +106,7 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: 
     )
 
     await callback.message.answer(
-        get_text(user_language, "text.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff.text_menu").format(gb=plan.gb, days=plan.days),
+        get_text(user_language, "text.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff.text_menu").format(gb=format_number(plan.gb), days=plan.days),
         reply_markup=kb,
         parse_mode="Markdown"
     )
@@ -114,7 +115,7 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM
 async def inline_menu_regional_esim(callback: CallbackQuery, user_language: str):
 
-    data = await esim_lists.esim_regional()
+    data = await esim_lists.esim_regional(user_language)
     kb = buttons_menu.buttons_region_esim(data, user_language, page=0)
 
     await callback.message.answer(
@@ -168,7 +169,7 @@ async def inline_menu_regional_esim_tariff(callback: CallbackQuery, user_languag
     )
 
     await callback.message.answer(
-        get_text(user_language, "text.inline_menu.buy_esim.regional_esim.all_tariffs.current_tariff.text_menu").format(gb=plan.gb, days=plan.days, countries=countries_text),
+        get_text(user_language, "text.inline_menu.buy_esim.regional_esim.all_tariffs.current_tariff.text_menu").format(gb=format_number(plan.gb), days=plan.days, countries=countries_text),
         reply_markup=kb,
         parse_mode="Markdown"
     )
@@ -214,7 +215,7 @@ async def inline_menu_global_esim_tariff(callback: CallbackQuery, user_language:
     )
 
     await callback.message.answer(
-        get_text(user_language, "text.inline_menu.buy_esim.global_esim.current_tariff.text_menu").format(gb=plan.gb, days=plan.days, countries=countries_text),
+        get_text(user_language, "text.inline_menu.buy_esim.global_esim.current_tariff.text_menu").format(gb=format_number(plan.gb), days=plan.days, countries=countries_text),
         reply_markup=kb,
         parse_mode="Markdown"
     )
