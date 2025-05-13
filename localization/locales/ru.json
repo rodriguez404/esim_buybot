@@ -362,10 +362,10 @@
     },
     "regions": {
         "Europe": "\uD83C\uDDEA\uD83C\uDDFA Европа",
-        "South America": "\uD83C\uDF0D Южная Америка",
-        "North America": "\uD83C\uDF0D Северная Америка",
+        "South America": "\uD83C\uDF0E Южная Америка",
+        "North America": "\uD83C\uDF0E Северная Америка",
         "Africa": "\uD83C\uDF0D Африка",
-        "Asia": "\uD83C\uDF0D Азия",
+        "Asia": "\uD83C\uDF0F Азия",
         "Middle East": "\uD83C\uDF0D Ближний восток",
         "China": "\uD83D\uDC09 Поднебесная",
         "Caribbean": "\uD83C\uDF34 Карибский бассейн",

@@ -53,7 +53,7 @@ async def main():
     load_locales() # Загружаем все локализации
 
     scheduler = AsyncIOScheduler()
-    scheduler.add_job(update_all_packages, 'interval', hours=1) # Обновлять всё каждый час
+    #scheduler.add_job(update_all_packages, 'interval', hours=1) # Обновлять всё каждый час
     scheduler.start()
     print("🔁 Планировщик обновлений работает")
 
