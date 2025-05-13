@@ -10,10 +10,9 @@ from database.models.esim_local import DataBase_LocalTariff
 
 from localization.localization import get_text
 from database.functions.get_user_lang_from_db import get_user_lang_from_db
-from microservices.code_to_flag import code_to_flag
 from microservices.format_number_UI import format_number
 from redis_folder.functions import get_user_lang_from_redis
-from redis_folder.functions.esim_lists_cache import get_cache_esim_global
+from redis_folder.functions.get_cache_json import get_cache_json
 
 
 # Купить eSIM
@@ -58,7 +57,7 @@ async def inline_menu_buy_eSIM_callback(callback: CallbackQuery, user_language: 
 # Местные eSIM: Купить eSIM -> Местные eSIM
 async def inline_menu_esim_local_countries(callback: CallbackQuery, user_language: str):
 
-    data = await esim_lists.esim_local_countries(user_language)
+    data = await get_cache_json(key=f"esim_local_countries_{user_language}") or await esim_lists.esim_local_countries(user_language)
     kb = buttons_menu.buttons_local_countries_esim(data, user_language, page=0)
 
     await callback.message.answer(
@@ -116,7 +115,7 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM
 async def inline_menu_regional_esim(callback: CallbackQuery, user_language: str):
 
-    data = await esim_lists.esim_regional(user_language)
+    data = await get_cache_json(key=f"esim_regional_regions_{user_language}") or await esim_lists.esim_regional(user_language)
     kb = buttons_menu.buttons_region_esim(data, user_language, page=0)
 
     await callback.message.answer(
@@ -179,7 +178,7 @@ async def inline_menu_regional_esim_tariff(callback: CallbackQuery, user_languag
 # Международные eSIM: Купить eSIM -> Международные eSIM
 async def inline_menu_global_esim(callback: CallbackQuery, user_language: str):
 
-    data = await get_cache_esim_global() or await esim_lists.esim_global()
+    data = await get_cache_json(key="esim_global") or await esim_lists.esim_global()
     kb = buttons_menu.buttons_global_esim(data, user_language, page=0)
 
     await callback.message.answer(

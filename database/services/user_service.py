@@ -1,8 +1,7 @@
 from tortoise.exceptions import DoesNotExist
 from database.models.user import DataBase_User
 from aiogram.types import User as TelegramUser
-
-SUPPORTED_LANGUAGES = {"en", "ru"}
+from config import SUPPORTED_LANGUAGES
 
 async def get_user_from_db(user_id: int) -> DataBase_User | None:
     try:

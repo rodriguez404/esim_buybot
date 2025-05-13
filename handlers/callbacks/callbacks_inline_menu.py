@@ -1,4 +1,4 @@
-from aiogram import F, types, Router
+from aiogram import F, types
 
 from aiogram.types import CallbackQuery
 from aiogram.types import PreCheckoutQuery, Message
@@ -14,10 +14,10 @@ from handlers.menu.reply_menu import show_reply_menu
 from loader import bot, router
 
 from localization.localization import get_text
-from database.functions.get_user_lang_from_db import get_user_lang_from_db
 from microservices.update_user_language import update_user_language_in_db
 
-from redis_folder.functions.esim_lists_cache import get_cache_esim_global
+
+from redis_folder.functions.get_cache_json import get_cache_json
 from redis_folder.redis_client import get_redis
 
 @router.callback_query(F.data == "close_inline_menu")
@@ -40,9 +40,6 @@ async def global_esim_callback(callback: CallbackQuery, user_language: str):
 @router.callback_query(F.data.startswith("global_plan_"))
 async def selected_plan_global(callback: CallbackQuery, user_language: str):
 
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
-
     try:
         await callback.message.delete()
     except Exception as e:
@@ -54,8 +51,6 @@ async def selected_plan_global(callback: CallbackQuery, user_language: str):
 @router.callback_query(F.data.startswith('buy_esim_global_'))
 async def process_buy_esim_global(callback: CallbackQuery, user_language: str):
 
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
     plan_id = int(callback.data.split("_")[-1])
 
     # Получаем тариф по ID
@@ -82,11 +77,8 @@ async def region_esim_callback(callback: CallbackQuery, user_language: str):
 @router.callback_query(lambda c: c.data.startswith("global_page_"))
 async def callback_global_page(callback: types.CallbackQuery, user_language: str):
 
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
-
     page = int(callback.data.split("_")[-1])
-    plans = await get_cache_esim_global() or await esim_lists.esim_global()
+    plans = await get_cache_json(key="esim_global") or await esim_lists.esim_global()
     kb = buttons_menu.buttons_global_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
@@ -96,11 +88,8 @@ async def callback_global_page(callback: types.CallbackQuery, user_language: str
 @router.callback_query(lambda c: c.data.startswith("regional_page_"))
 async def callback_region_page(callback: types.CallbackQuery, user_language: str):
 
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
-
     page = int(callback.data.split("_")[-1])
-    plans = await esim_lists.esim_regional(user_language)
+    plans = await get_cache_json(key=f"esim_regional_regions_{user_language}") or await esim_lists.esim_regional(user_language)
     kb = buttons_menu.buttons_region_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
@@ -109,10 +98,7 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Регионы -> Клик по региону для вывода его тарифов
 @router.callback_query(lambda c: c.data.startswith("region_id_"))
-async def selected_plan_region(callback: types.CallbackQuery, user_language: str):
-
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
+async def selected_region_plans(callback: types.CallbackQuery, user_language: str):
 
     try:
         await callback.message.delete()
@@ -124,9 +110,6 @@ async def selected_plan_region(callback: types.CallbackQuery, user_language: str
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Переключение страниц по кнопкам "назад", "далее"
 @router.callback_query(lambda c: c.data.startswith("regional_region_page"))
 async def callback_region_page(callback: types.CallbackQuery, user_language: str):
-
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
 
     page = int(callback.data.split("_")[-1])
     region_id = int(callback.data.split("_")[-2])
@@ -141,9 +124,6 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
 @router.callback_query(lambda c: c.data.startswith("regional_selected_region_plan_"))
 async def selected_plan_region(callback: types.CallbackQuery, user_language: str):
 
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
-
     try:
         await callback.message.delete()
     except Exception as e:
@@ -153,9 +133,6 @@ async def selected_plan_region(callback: types.CallbackQuery, user_language: str
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
 @router.callback_query(F.data.startswith('buy_esim_regional_selected_region_'))
 async def process_buy_esim_regional(callback: CallbackQuery, user_language: str):
-
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
 
     plan_id = int(callback.data.split("_")[-1])
 
@@ -182,23 +159,17 @@ async def local_countries_esim_callback(callback: CallbackQuery, user_language: 
 @router.callback_query(lambda c: c.data.startswith("countries_list_page_"))
 async def callback_local_countries_list_page(callback: types.CallbackQuery, user_language: str):
 
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
-
     page = int(callback.data.split("_")[-1])
-    countries_list = await esim_lists.esim_local_countries(user_language)
+    countries_list = await get_cache_json(key=f"esim_local_countries_{user_language}") or await esim_lists.esim_local_countries(user_language)
     kb = buttons_menu.buttons_local_countries_esim(countries_list, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
 
 
-# Местные eSIM: Купить eSIM -> Местне eSIM -> Страны -> Клик по стране для вывода её тарифов
+# Местные eSIM: Купить eSIM -> Местные eSIM -> Страны -> Клик по стране для вывода её тарифов
 @router.callback_query(lambda c: c.data.startswith("country_id_"))
-async def selected_plan_region(callback: types.CallbackQuery, user_language: str):
-
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
+async def selected_local_country_plans(callback: types.CallbackQuery, user_language: str):
 
     try:
         await callback.message.delete()
@@ -211,9 +182,6 @@ async def selected_plan_region(callback: types.CallbackQuery, user_language: str
 @router.callback_query(lambda c: c.data.startswith("selected_country_id_plan_"))
 async def selected_plan_local(callback: types.CallbackQuery, user_language: str):
 
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
-
     try:
         await callback.message.delete()
     except Exception as e:
@@ -224,9 +192,6 @@ async def selected_plan_local(callback: types.CallbackQuery, user_language: str)
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная Страна -> Все тарифы по стране -> Переключение страниц по кнопкам "назад", "далее"
 @router.callback_query(lambda c: c.data.startswith("selected_country_id_page_"))
 async def callback_region_page(callback: types.CallbackQuery, user_language: str):
-
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
 
     page = int(callback.data.split("_")[-1])
     country_id = int(callback.data.split("_")[-2])
@@ -240,9 +205,6 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
 @router.callback_query(F.data.startswith('buy_esim_selected_country_plan_'))
 async def process_buy_esim_local(callback: CallbackQuery):
-
-    # Временно для отладки - выводит в консоль callback.data айдишник
-    print("[DEBUG] Button pressed: ", callback.data)
 
     plan_id = int(callback.data.split("_")[-1])
 

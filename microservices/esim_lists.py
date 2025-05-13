@@ -19,7 +19,7 @@ async def esim_local_countries(user_language):
 
     # Сортировка по названию страны (по алфавиту)
     countries_list = sorted(countries_list, key=lambda x: x[1])
-    print(countries_list)
+
     return countries_list
 
 
@@ -33,7 +33,7 @@ async def esim_local_selected_country_plans(country_id):
 
     # Сортировка: по объему, затем по количеству дней, затем по цене
     plans.sort(key=lambda x: (x[1], x[2], x[3]))
-    print(plans)
+
     return plans
 
 
@@ -47,7 +47,7 @@ async def esim_regional(user_language):
 
     # Сортировка по имени региона (по алфавиту)
     plans = sorted(plans, key=lambda x: x[1])
-    print(plans)
+
     return plans
 
 
@@ -60,7 +60,7 @@ async def esim_regional_countries(plan_id, region_id, user_language):
         f"{code_to_flag(i.location_code)} {translate_countries(i.location_name, user_language)}"
         for i in countries
     ]
-    print(", ".join(countries_text_parts))
+
     return ", ".join(countries_text_parts)
 
 
@@ -74,7 +74,7 @@ async def esim_regional_selected_region_plans(region_id):
 
     # Сортировка: по объему, затем по количеству дней, затем по цене
     plans.sort(key=lambda x: (x[1], x[2], x[3]))
-    print(plans)
+
     return plans
 
 
@@ -88,7 +88,7 @@ async def esim_global():
 
     # Сортировка: по объему, затем по количеству дней, затем по цене
     plans.sort(key=lambda x: (x[1], x[2], x[3]))
-    # print(plans)
+
     return plans
 
 
@@ -101,5 +101,5 @@ async def esim_global_countries(plan_id, user_language):
         f"{code_to_flag(i.location_code)} {translate_countries(i.location_name, user_language)}"
         for i in countries
     ]
-    print(", ".join(countries_text_parts))
+
     return ", ".join(countries_text_parts)
