@@ -1,6 +1,8 @@
 import logging
 import asyncio
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 from api.http_client import close_session
 
 from aiogram import Bot, types
@@ -20,9 +22,8 @@ from localization.localization import load_locales
 from database import init_db
 from database.models.user import DataBase_User  # Правильный импорт модели User
 from database.services.user_service import get_or_create_user_db
-from database.services.esim_service_global import update_esim_packages_global
-from database.services.esim_service_regional import update_esim_packages_regional
-from database.services.esim_service_local import update_esim_packages_local
+
+from microservices.update_all_packages import update_all_packages
 
 from loader import router
 from redis_folder.redis_client import get_redis
@@ -51,10 +52,13 @@ async def cmd_id(message: types.Message):
 async def main():
     load_locales() # Загружаем все локализации
 
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(update_all_packages, 'interval', hours=1) # Обновлять всё каждый час
+    scheduler.start()
+    print("🔁 Планировщик обновлений работает")
+
     await init_db()
-    # await update_esim_packages_global()
-    # await update_esim_packages_regional()
-    # await update_esim_packages_local()
+
     dp = await init_dispatcher()
 
     await set_commands(bot) # Устанавливаем команды для меню слева
