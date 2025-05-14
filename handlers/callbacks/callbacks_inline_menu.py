@@ -22,16 +22,13 @@ from redis_folder.redis_client import get_redis
 
 @router.callback_query(F.data == "close_inline_menu")
 async def close_menu_callback(callback: CallbackQuery):
+
     await callback.message.delete()  # Удаляет сообщение с меню
 
 
 # Международные eSIM: Купить eSIM -> Международные eSIM
 @router.callback_query(F.data == "global_esim_inline_menu")
 async def global_esim_callback(callback: CallbackQuery, user_language: str):
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
 
     await inline_menu.inline_menu_global_esim(callback, user_language)
 
@@ -40,10 +37,6 @@ async def global_esim_callback(callback: CallbackQuery, user_language: str):
 @router.callback_query(F.data.startswith("global_plan_"))
 async def selected_plan_global(callback: CallbackQuery, user_language: str):
 
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
     await inline_menu.inline_menu_global_esim_tariff(callback, user_language)
 
 
@@ -63,13 +56,9 @@ async def process_buy_esim_global(callback: CallbackQuery, user_language: str):
     await invoice_payment_menu.send_payment_invoice(callback, plan)
 
 
-# Региональные eSIM: Купить eSIM -> Региональные eSIM
+#Региональные eSIM: Купить eSIM -> Региональные eSIM
 @router.callback_query(F.data == "region_esim_inline_menu")
 async def region_esim_callback(callback: CallbackQuery, user_language: str):
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
 
     await inline_menu.inline_menu_regional_esim(callback, user_language)
 
@@ -100,10 +89,6 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
 @router.callback_query(lambda c: c.data.startswith("region_id_"))
 async def selected_region_plans(callback: types.CallbackQuery, user_language: str):
 
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
     await inline_menu.inline_menu_regional_esim_tariffs_list(callback, user_language)
 
 
@@ -124,10 +109,6 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
 @router.callback_query(lambda c: c.data.startswith("regional_selected_region_plan_"))
 async def selected_plan_region(callback: types.CallbackQuery, user_language: str):
 
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
     await inline_menu.inline_menu_regional_esim_tariff(callback, user_language)
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
@@ -145,13 +126,10 @@ async def process_buy_esim_regional(callback: CallbackQuery, user_language: str)
     # Отправляем инвойс
     await invoice_payment_menu.send_payment_invoice(callback, plan)
 
+
 # Местные eSIM: Купить eSIM -> Местные eSIM
 @router.callback_query(F.data == "local_esim_inline_menu")
 async def local_countries_esim_callback(callback: CallbackQuery, user_language: str):
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
 
     await inline_menu.inline_menu_esim_local_countries(callback, user_language)
 
@@ -171,10 +149,6 @@ async def callback_local_countries_list_page(callback: types.CallbackQuery, user
 @router.callback_query(lambda c: c.data.startswith("country_id_"))
 async def selected_local_country_plans(callback: types.CallbackQuery, user_language: str):
 
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
     await inline_menu.inline_menu_local_esim_tariffs_list(callback, user_language)
 
 
@@ -182,10 +156,6 @@ async def selected_local_country_plans(callback: types.CallbackQuery, user_langu
 @router.callback_query(lambda c: c.data.startswith("selected_country_id_plan_"))
 async def selected_plan_local(callback: types.CallbackQuery, user_language: str):
 
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
     await inline_menu.inline_menu_local_esim_tariff(callback, user_language)
 
 
@@ -219,10 +189,6 @@ async def process_buy_esim_local(callback: CallbackQuery):
 # Настройки: Язык / Language
 @router.callback_query(F.data == "change_language_inline_menu")
 async def settings_change_language(callback: CallbackQuery, user_language: str):
-    try:
-        await callback.message.delete()
-    except Exception as e:
-        print(f"Не удалось удалить сообщение пользователя: {e}")
 
     await inline_menu.inline_menu_settings_change_language(callback, user_language)
 
@@ -260,23 +226,34 @@ async def settings_change_language(callback: CallbackQuery, user_language: str):
 
 # ТЕСТОВЫЙ МУСОР ДЛЯ ПЛАТЕЖКИ(НЕ МУСОР, Я ПЕРЕДУМАЛ) 
 # - МУСОР, ПЕРЕДЕЛАЕШЬ @rodriguez404 to 4EJlOBEK06
-@router.callback_query()
-async def handle_callback(callback: CallbackQuery, user_language: str):
-    data = callback.data
-    if data == "inline_menu_buy_eSIM_callback":
-        await callback.message.delete()
-        await inline_menu.inline_menu_buy_eSIM_callback(callback, user_language)
-    if data == "inline_menu_settings_callback":
-        await callback.message.delete()
-        await inline_menu.inline_menu_settings_callback(callback, user_language)
-    elif data == "inline_menu_global_esim":
-        await callback.message.delete()
-        await inline_menu.inline_menu_buy_eSIM_ru(callback)
-    elif data == "btn1":
-        await callback.message.delete()
-        await inline_menu.inline_menu_buy_eSIM_ru(callback)
+# @router.callback_query()
+# async def handle_callback(callback: CallbackQuery, user_language: str):
+#     data = callback.data
+#     if data == "inline_menu_settings_callback":
+#         # await callback.message.delete()
+#         await inline_menu.inline_menu_settings_callback(callback, user_language)
+#     elif data == "inline_menu_global_esim":
+#         # await callback.message.delete()
+#         # await inline_menu.inline_menu_buy_eSIM_ru(callback)
+#         kb = await inline_menu.inline_menu_buy_eSIM_ru(callback)
+#         await callback.message.edit_text("Test text", reply_markup=kb)
+#     elif data == "btn1":
+#         # await callback.message.delete()
+#         await inline_menu.inline_menu_buy_eSIM_ru(callback)
 
-    await callback.answer()
+#     await callback.answer()
+
+
+@router.callback_query(F.data == "inline_menu_buy_eSIM_callback")
+async def back_to_menu(callback: CallbackQuery, user_language: str):
+    await inline_menu.inline_menu_buy_eSIM_callback(callback, user_language)
+
+# "Популярные направления", пока не готово
+@router.callback_query(F.data == "btn1")
+async def handle_callback(callback: CallbackQuery):
+    await inline_menu.inline_menu_buy_eSIM_ru(callback)
+
+
 
 @router.pre_checkout_query()
 async def process_pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
@@ -305,13 +282,3 @@ async def successful_payment(message: Message):
 
     else:
         await message.answer("❌ Ошибка: Тариф не найден.")
-
-
-# Временно - для отладки
-# Для всех незарегистрированных хэндлерами выше кнопок
-# При клике на кнопку выводит в консоль её callback.data айдишник
-@router.callback_query()
-async def handle_callback_debug(callback: CallbackQuery):
-    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-    print("button pressed: ", callback.data)
-    await callback.answer()

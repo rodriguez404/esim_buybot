@@ -20,7 +20,7 @@ async def inline_menu_buy_eSIM(message: types.Message, user_language: str):
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.but_esim.popular_destinations"), callback_data="btn1")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.popular_destinations"), callback_data="btn1")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim"), callback_data="local_esim_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_esim"), callback_data="region_esim_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim"), callback_data="global_esim_inline_menu")],
@@ -39,7 +39,7 @@ async def inline_menu_buy_eSIM_callback(callback: CallbackQuery, user_language: 
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.but_esim.popular_destinations"), callback_data="btn1")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.popular_destinations"), callback_data="btn1")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim"), callback_data="local_esim_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_esim"), callback_data="region_esim_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim"), callback_data="global_esim_inline_menu")],
@@ -47,7 +47,7 @@ async def inline_menu_buy_eSIM_callback(callback: CallbackQuery, user_language: 
         ]
     )
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.buy_esim.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
@@ -60,7 +60,7 @@ async def inline_menu_esim_local_countries(callback: CallbackQuery, user_languag
     data = await get_cache_json(key=f"esim_local_countries_{user_language}") or await esim_lists.esim_local_countries(user_language)
     kb = buttons_menu.buttons_local_countries_esim(data, user_language, page=0)
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.buy_esim.local_esim.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
@@ -75,7 +75,7 @@ async def inline_menu_local_esim_tariffs_list(callback: CallbackQuery, user_lang
     plans = await esim_lists.esim_local_selected_country_plans(country_id=country_id)
     kb = buttons_menu.buttons_local_esim_selected(plans, country_id=country_id, user_language=user_language, page=0)
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.buy_esim.local_esim.all_tariffs.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
@@ -105,7 +105,7 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: 
         ]
     )
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff.text_menu").format(gb=format_number(plan.gb), days=plan.days),
         reply_markup=kb,
         parse_mode="Markdown"
@@ -118,7 +118,7 @@ async def inline_menu_regional_esim(callback: CallbackQuery, user_language: str)
     data = await get_cache_json(key=f"esim_regional_regions_{user_language}") or await esim_lists.esim_regional(user_language)
     kb = buttons_menu.buttons_region_esim(data, user_language, page=0)
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.buy_esim.regional_esim.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
@@ -134,7 +134,7 @@ async def inline_menu_regional_esim_tariffs_list(callback: CallbackQuery, user_l
     plans = await esim_lists.esim_regional_selected_region_plans(region_id=region_id)
     kb = buttons_menu.buttons_region_esim_selected(plans, region_id=region_id, user_language=user_language, page=0)
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.buy_esim.regional_esim.all_tariffs.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
@@ -168,7 +168,7 @@ async def inline_menu_regional_esim_tariff(callback: CallbackQuery, user_languag
         ]
     )
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.buy_esim.regional_esim.all_tariffs.current_tariff.text_menu").format(gb=format_number(plan.gb), days=plan.days, countries=countries_text),
         reply_markup=kb,
         parse_mode="Markdown"
@@ -181,7 +181,7 @@ async def inline_menu_global_esim(callback: CallbackQuery, user_language: str):
     data = await get_cache_json(key="esim_global") or await esim_lists.esim_global()
     kb = buttons_menu.buttons_global_esim(data, user_language, page=0)
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.buy_esim.global_esim.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
@@ -214,7 +214,7 @@ async def inline_menu_global_esim_tariff(callback: CallbackQuery, user_language:
         ]
     )
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.buy_esim.global_esim.current_tariff.text_menu").format(gb=format_number(plan.gb), days=plan.days, countries=countries_text),
         reply_markup=kb,
         parse_mode="Markdown"
@@ -301,11 +301,12 @@ async def inline_menu_settings_change_language(callback: CallbackQuery, user_lan
         ]
     )
 
-    await callback.message.answer(
+    await callback.message.edit_text(
         get_text(user_language, "text.inline_menu.settings.change_language.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
     )
+
 
 #Помощь
 async def inline_menu_help(message: types.Message, user_language: str):
@@ -327,8 +328,9 @@ async def inline_menu_help(message: types.Message, user_language: str):
         parse_mode="Markdown"
     )
 
-#Тестовая покупка
-async def inline_menu_buy_eSIM_ru(message: types.Message):
+
+#Тестовая покупка ("Популярные направления")
+async def inline_menu_buy_eSIM_ru(callback: CallbackQuery):
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="1 ГБ на 7 дней -> 5$", callback_data="tariff_ru_1")],
@@ -336,7 +338,7 @@ async def inline_menu_buy_eSIM_ru(message: types.Message):
         ]
     )
 
-    await message.answer(
+    await callback.message.edit_text(
         "*🇷🇺 Россия*\n"
         "Пожалуйста, выберите необходимый объем интернет-трафика:",
         reply_markup=kb,

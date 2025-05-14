@@ -7,7 +7,7 @@
     "text.reply_menu.text_menu": "📱 *TelegramPaymentBot* — mobile internet operator *eSIM*:\n\n    • 🌍 Coverage in *190+ countries* (3G, 4G, 5G)\n    • ⚡ High speed\n    • 🔒 Secure connection\n    • 📶 Tethering mode\n    • 💸 Lowest prices\n\n\n    Choose the direction and tariff that suits you and use mobile internet *within a minute after payment*.\n\n    *eSIM from TelegramPaymentBot* can be used simultaneously with your *primary SIM card*.\n\n    ➡️ Go to the _\"Buy eSIM\"_ menu or use the search below.\n    ⚙️ You can change the payment method in the _\"Settings\"_ menu.",
 
 
-    "button.inline_menu.but_esim.popular_destinations": "🔥 Popular destinations",
+    "button.inline_menu.buy_esim.popular_destinations": "🔥 Popular destinations",
     "button.inline_menu.buy_esim.local_esim": "Local eSIM",
     "button.inline_menu.buy_esim.regional_esim": "Regional eSIM",
     "button.inline_menu.buy_esim.global_esim": "International eSIM",
