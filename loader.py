@@ -1,4 +1,3 @@
-import os
 from aiogram import Dispatcher, Bot, Router
 from config import BOT_TOKEN
 from aiogram.fsm.storage.memory import MemoryStorage

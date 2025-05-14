@@ -241,11 +241,8 @@ async def settings_change_language(callback: CallbackQuery, user_language: str):
     updated = await update_user_language_in_db(callback.from_user.id, lang_code)
     user_language = lang_code if updated else current_language
 
-    redis = get_redis()
-    await redis.set(f"user_lang:{callback.from_user.id}", lang_code)
-    # Debug - временно - для отладки
-    print(f"Тип Redis клиента: {type(redis)}")
-    #
+    # Кэширование языка пользователя на 24 часа
+    await get_redis().setex(f"user_lang:{callback.from_user.id}", 86400, lang_code)
 
     if updated:
         await callback.answer(

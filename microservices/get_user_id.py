@@ -1,5 +1,5 @@
 from aiogram.types import Update, Message, CallbackQuery, InlineQuery, PollAnswer, ChatMemberUpdated
-import logging
+# import logging
 
 # Для Middleware универсальная функция получения айдишника пользователя
 def get_user_id(event: Update) -> int | None:

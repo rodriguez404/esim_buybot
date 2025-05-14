@@ -7,10 +7,11 @@ from aiogram import Bot, types
 from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
-from loader import bot, init_dispatcher
+from loader import bot, init_dispatcher, router
 from redis_folder.functions.set_static_cache import set_static_cache
 from redis_folder.redis_client import get_redis
 
+# Необходимы для корректной работы, несмотря на то, что визуально в мейне не используются
 from handlers.menu import reply_menu, inline_menu
 from handlers.callbacks import callbacks_reply_menu, callbacks_inline_menu
 
@@ -21,12 +22,10 @@ from localization.localization import load_locales
 from database import init_db
 from database.models.user import DataBase_User  # Правильный импорт модели User
 from database.services.user_service import get_or_create_user_db
+# Обновление бд
 from database.services.esim_service_global import update_esim_packages_global
 from database.services.esim_service_regional import update_esim_packages_regional
 from database.services.esim_service_local import update_esim_packages_local
-
-from loader import router
-from redis_folder.redis_client import get_redis
 
 logging.basicConfig(level=logging.DEBUG)
 

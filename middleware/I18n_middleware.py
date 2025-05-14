@@ -20,13 +20,16 @@ class I18nMiddleware(BaseMiddleware):
 
         if user_id:
             lang = await get_user_lang_from_redis(user_id)
+            # Если нет языка пользователя в кэше, ищем в бд
             if not lang:
                 lang = await get_user_lang_from_db(user_id)
                 if lang and isinstance(get_redis(), Redis):
+                    # Найден в бд, но нет в кэше -> запись кэша
                     await get_redis().setex(f"user_lang:{user_id}", 86400, lang)
 
             data["user_language"] = lang
             return await handler(event, data)
 
+        # Иначе - вернуть дефолт
         data["user_language"] = "ru" # стандартный язык
         return await handler(event, data)
