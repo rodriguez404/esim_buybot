@@ -1,6 +1,8 @@
 import logging
 import asyncio
 
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 from api.http_client import close_session
 
 from aiogram import Bot, types
@@ -51,10 +53,13 @@ async def cmd_id(message: types.Message):
 async def main():
     load_locales() # Загружаем все локализации
 
+    scheduler = AsyncIOScheduler()
+    #scheduler.add_job(update_all_packages, 'interval', hours=1) # Обновлять всё каждый час
+    scheduler.start()
+    print("🔁 Планировщик обновлений работает")
+
     await init_db()
-    # await update_esim_packages_global()
-    # await update_esim_packages_regional()
-    # await update_esim_packages_local()
+
     dp = await init_dispatcher()
 
     await set_static_cache() # временно?, для отладки
