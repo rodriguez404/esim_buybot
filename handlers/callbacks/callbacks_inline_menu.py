@@ -7,14 +7,14 @@ from database.models.esim_global import DataBase_EsimPackageGlobal
 from database.models.esim_local import DataBase_LocalTariff
 from database.models.esim_regional import DataBase_RegionalTariff
 from handlers.keyboards import buttons_menu
-from microservices import esim_lists
+from database.functions import esim_lists
 from handlers.menu import inline_menu, invoice_payment_menu
 from handlers.menu.reply_menu import show_reply_menu
 
 from loader import bot, router
 
 from localization.localization import get_text
-from microservices.update_user_language import update_user_language_in_db
+from database.functions.update_user_language_in_db import update_user_language_in_db
 
 
 from redis_folder.functions.get_cache_json import get_cache_json

@@ -1,6 +1,6 @@
 from database.services.user_service import get_user_from_db
 
-
+# Записать обновленный язык пользователя в БД
 async def update_user_language_in_db(user_id: int, new_language: str) -> bool:
     user = await get_user_from_db(user_id)
     if not user:

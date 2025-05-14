@@ -8,7 +8,7 @@ from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
 from loader import bot, init_dispatcher
-from redis_folder.functions.set_all_static_cache import set_all_static_cache
+from redis_folder.functions.set_static_cache import set_static_cache
 from redis_folder.redis_client import get_redis
 
 from handlers.menu import reply_menu, inline_menu
@@ -58,7 +58,7 @@ async def main():
     # await update_esim_packages_local()
     dp = await init_dispatcher()
 
-    await set_all_static_cache() # временно?, для отладки
+    await set_static_cache() # временно?, для отладки
 
     await set_commands(bot) # Устанавливаем команды для меню слева
     try:

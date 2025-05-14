@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
-from microservices import esim_lists
+from database.functions import esim_lists
 
 from handlers.keyboards import buttons_menu
 from database.models.esim_global import DataBase_EsimPackageGlobal
