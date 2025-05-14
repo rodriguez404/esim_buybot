@@ -1,25 +1,29 @@
 import logging
 import asyncio
+
 from api.http_client import close_session
 
-import config
-from aiogram import Bot, types, Router, Dispatcher
+from aiogram import Bot, types
 from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
-from loader import dp, bot, redis
+from loader import bot, init_dispatcher, router
+from redis_folder.redis_client import get_redis
 
+# Необходимы для корректной работы, несмотря на то, что визуально в мейне не используются
 from handlers.menu import reply_menu, inline_menu
 from handlers.callbacks import callbacks_reply_menu, callbacks_inline_menu
 
 from tortoise.exceptions import DoesNotExist  # Правильный импорт исключения
 
+from localization.localization import load_locales
+
 from database import init_db
 from database.models.user import DataBase_User  # Правильный импорт модели User
-from database.services.user_service import get_or_create_user
-from database.services.esim_service_global import updata_esim_packages_global
-from database.services.esim_service_regional import update_esim_packages_regional
-
+from database.services.user_service import get_or_create_user_db
+# Обновление бд
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from microservices.update_all_packages import update_all_packages
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -31,30 +35,34 @@ async def set_commands(bot: Bot):
     ]
     await bot.set_my_commands(commands)
 
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message):
-    user_id = message.from_user.id
-    username = message.from_user.username
+@router.message(Command("start"))
+async def cmd_start(message: types.Message, user_language: str):
+    await get_or_create_user_db(message.from_user)
+    await reply_menu.show_reply_menu(message, user_language)   # После регистрации или проверки, показываем главное меню
 
-    await get_or_create_user(user_id, username) # Можно получить user(объект) и created(bool)
-    await reply_menu.show_reply_menu(message)   # После регистрации или проверки, показываем главное меню
-
-@dp.message(Command("id"))
+@router.message(Command("id"))
 async def cmd_id(message: types.Message):
     telegram_user = message.from_user
     await message.answer(str(telegram_user.id))
 
 
 async def main():
+    load_locales() # Загружаем все локализации
     await init_db()
-    await updata_esim_packages_global()
-    await update_esim_packages_regional()
+
+    # Планировщик - для автоматического обновления БД
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(update_all_packages, 'interval', hours=24) # Обновлять всё каждые 24 часа
+    scheduler.start()
+    print("🔁 Планировщик обновлений работает")
+    
+    dp = await init_dispatcher()
+
     await set_commands(bot) # Устанавливаем команды для меню слева
-    # await dp.start_polling(bot)
     try:
         await dp.start_polling(bot)
     finally:
-        await redis.close()
+        await get_redis().close()
         await close_session()
         await bot.session.close()
 

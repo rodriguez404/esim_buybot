@@ -1,9 +1,11 @@
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 BOT_TOKEN = os.getenv("bot_token")
 PAYMENTS_TOKEN = os.getenv("payments_token")
+SUPPORTED_LANGUAGES = {"ru", "en"}
 
 class DATABASE:
     HOST = os.getenv("database_host")

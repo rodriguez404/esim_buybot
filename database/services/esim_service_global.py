@@ -6,7 +6,7 @@ from database.models.esim_global import DataBase_EsimPackageGlobal, DataBase_Esi
 
 from api.esim_access import fetch, url_packagelist
 
-async def updata_esim_packages_global():
+async def update_esim_packages_global():
     await DataBase_EsimPackageGlobal.all().delete()
     await DataBase_EsimCountryGlobal.all().delete()
 
@@ -15,18 +15,19 @@ async def updata_esim_packages_global():
 
     for package in package_list:
         name = package.get("name", "")
-        price = package.get("price", 0) // 10000
+        price = package.get("price", 0) / 10000
+        package_code = package.get("packageCode", "")
 
         # Пытаемся извлечь GB и Days
         try:
-            gb = int(re.search(r"(\d+)GB", name).group(1))
+            gb = float(re.search(r"(\d+)GB", name).group(1))
             days = int(re.search(r"(\d+)Days", name).group(1))
         except Exception as e:
             print(f"⚠️ Не удалось распарсить тариф: {name}, ошибка: {e}")
             continue
 
         # Сохраняем только очищенные данные
-        esim_package = await DataBase_EsimPackageGlobal.create(gb=gb, days=days, price=price)
+        esim_package = await DataBase_EsimPackageGlobal.create(package_code=package_code, gb=gb, days=days, price=price)
 
         for country in package.get("locationNetworkList", []):
             await DataBase_EsimCountryGlobal.create(
@@ -39,5 +40,5 @@ async def updata_esim_packages_global():
 
 async def reset_sequence():
     conn = Tortoise.get_connection("default")
-    await conn.execute_query('ALTER SEQUENCE esim_package_global_id_seq RESTART WITH 1;')
-    await conn.execute_query('ALTER SEQUENCE esim_countries_global_id_seq RESTART WITH 1;')
+    await conn.execute_query('ALTER SEQUENCE esim_global_package_id_seq RESTART WITH 1;')
+    await conn.execute_query('ALTER SEQUENCE esim_global_countries_id_seq RESTART WITH 1;')

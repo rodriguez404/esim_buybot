@@ -1,161 +1,336 @@
-import re
-
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
-from handlers.menu import esim_lists
+from database.functions import esim_lists
 
-from handlers.keyboards.buttons_menu import buttons_global_esim, paginate_buttons_region
-from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
+from handlers.keyboards import buttons_menu
+from database.models.esim_global import DataBase_EsimPackageGlobal
+from database.models.esim_regional import DataBase_RegionalTariff
+from database.models.esim_local import DataBase_LocalTariff
+
+from localization.localization import get_text
+from database.functions.get_user_lang_from_db import get_user_lang_from_db
+from microservices.format_number_UI import format_number
+from redis_folder.functions import get_user_lang_from_redis
+from redis_folder.functions.get_cache_json import get_cache_json
 
 
-#Купить eSIM
-async def inline_menu_buy_eSIM(message: types.Message):
+# Купить eSIM
+async def inline_menu_buy_eSIM(message: types.Message, user_language: str):
+
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="🔥 Популярные направления", callback_data="btn1")],
-            [InlineKeyboardButton(text="Местная eSIM", callback_data="country_esim_inline_menu")],
-            [InlineKeyboardButton(text="Региональная eSIM", callback_data="region_esim_inline_menu")],
-            [InlineKeyboardButton(text="Международная eSIM", callback_data="global_esim_inline_menu")],
-            [InlineKeyboardButton(text="Закрыть", callback_data="close_inline_menu")]
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.popular_destinations"), callback_data="btn1")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim"), callback_data="local_esim_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_esim"), callback_data="region_esim_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim"), callback_data="global_esim_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
         ]
     )
 
     await message.answer(
-        "*Купить eSIM*\n"
-        "Вы можете купить eSIM как для отдельной страны, так и для определенного региона:",
+        get_text(user_language, "text.inline_menu.buy_esim.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+# Купить eSIM(Дубликат с другим параметром, НЕОБХОДИМ ДЛЯ РАБОТЫ)
+async def inline_menu_buy_eSIM_callback(callback: CallbackQuery, user_language: str):
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.popular_destinations"), callback_data="btn1")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim"), callback_data="local_esim_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_esim"), callback_data="region_esim_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim"), callback_data="global_esim_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
+        ]
+    )
+
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+
+# Местные eSIM: Купить eSIM -> Местные eSIM
+async def inline_menu_esim_local_countries(callback: CallbackQuery, user_language: str):
+
+    data = await get_cache_json(key=f"esim_local_countries_{user_language}") or await esim_lists.esim_local_countries(user_language)
+    kb = buttons_menu.buttons_local_countries_esim(data, user_language, page=0)
+
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.local_esim.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+
+# Местные eSIM: Купить eSIM -> Местные eSIM -> Все тарифы конкретной страны
+async def inline_menu_local_esim_tariffs_list(callback: CallbackQuery, user_language: str):
+
+    country_id = int(callback.data.split("_")[-1])  # Получаем тарифы по ID региона
+
+    plans = await esim_lists.esim_local_selected_country_plans(country_id=country_id)
+    kb = buttons_menu.buttons_local_esim_selected(plans, country_id=country_id, user_language=user_language, page=0)
+
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.local_esim.all_tariffs.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+
+# Местные eSIM: Купить eSIM -> Местные eSIM -> Все тарифы конкретной страны -> Конкретный тариф
+async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: str):
+
+    plan_id = int(callback.data.split("_")[-1])
+    country_id = int(callback.data.split("_")[-2])
+
+    # Получаем тариф по ID
+    plan = await DataBase_LocalTariff.get_or_none(id=plan_id, country_id=country_id)
+    if not plan:
+        await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
+        return
+
+    # Клавиатура
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff").format(price=format_number(plan.price)), callback_data=f"buy_esim_selected_country_plan_{country_id}_{plan.id}")],
+            [
+                InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"selected_country_id_page_{country_id}_0"),
+                InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
+            ]
+        ]
+    )
+
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff.text_menu").format(gb=format_number(plan.gb), days=plan.days),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+
+# Региональные eSIM: Купить eSIM -> Региональные eSIM
+async def inline_menu_regional_esim(callback: CallbackQuery, user_language: str):
+
+    data = await get_cache_json(key=f"esim_regional_regions_{user_language}") or await esim_lists.esim_regional(user_language)
+    kb = buttons_menu.buttons_region_esim(data, user_language, page=0)
+
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.regional_esim.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+
+# Региональные eSIM: Купить eSIM -> Региональные eSIM -> Все тарифы конкретного региона
+async def inline_menu_regional_esim_tariffs_list(callback: CallbackQuery, user_language: str):
+
+    region_id = int(callback.data.split("_")[-1])
+
+    # Получаем тарифы по ID региона
+    plans = await esim_lists.esim_regional_selected_region_plans(region_id=region_id)
+    kb = buttons_menu.buttons_region_esim_selected(plans, region_id=region_id, user_language=user_language, page=0)
+
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.regional_esim.all_tariffs.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+
+# Региональные eSIM: Купить eSIM -> Региональные eSIM -> Все тарифы конкретного региона -> Конкретный тариф
+async def inline_menu_regional_esim_tariff(callback: CallbackQuery, user_language: str):
+
+    plan_id = int(callback.data.split("_")[-1])
+    region_id = int(callback.data.split("_")[-2])
+
+    # Получаем тариф по ID
+    plan = await DataBase_RegionalTariff.get_or_none(id=plan_id, region=region_id)
+    if not plan:
+        await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
+        return
+
+    countries_text = await esim_lists.esim_regional_countries(plan_id, region_id, user_language)
+    if not countries_text:
+        countries_text = get_text(user_language, "error.countries_not_found")
+
+    # Клавиатура
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_esim.all_tariffs.current_tariff").format(price=format_number(plan.price)), callback_data=f"buy_esim_regional_selected_region_{region_id}_{plan.id}")],
+            [
+                InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"regional_region_page_{region_id}_0"),
+                InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
+            ]
+        ]
+    )
+
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.regional_esim.all_tariffs.current_tariff.text_menu").format(gb=format_number(plan.gb), days=plan.days, countries=countries_text),
         reply_markup=kb,
         parse_mode="Markdown"
     )
 
 
 # Международные eSIM: Купить eSIM -> Международные eSIM
-async def inline_menu_global_esim(message: types.Message):
-    data = await esim_lists.esim_global()
-    kb = buttons_global_esim(data, page=0)
-    await message.answer(
-        "*🌍 Международные eSIM-пакеты:*\n"
-        "Пожалуйста, выберите необходимый объем интернет-трафика:",
+async def inline_menu_global_esim(callback: CallbackQuery, user_language: str):
+
+    data = await get_cache_json(key="esim_global") or await esim_lists.esim_global()
+    kb = buttons_menu.buttons_global_esim(data, user_language, page=0)
+
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.global_esim.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
     )
 
 
 # Международные тарифы eSIM: Купить eSIM -> Международные eSIM -> Конкретный тариф
-async def inline_menu_global_esim_tariff(callback: CallbackQuery):
+async def inline_menu_global_esim_tariff(callback: CallbackQuery, user_language: str):
+
     plan_id = int(callback.data.split("_")[-1])
 
     # Получаем тариф по ID
     plan = await DataBase_EsimPackageGlobal.get_or_none(id=plan_id)
     if not plan:
-        await callback.message.answer("⚠️ Ошибка: тариф не найден.")
+        await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
 
-    # Получаем список стран с кодами
-    countries = await DataBase_EsimCountryGlobal.filter(package_id=plan.id).values("location_name", "location_code")
-    countries_text = ", ".join(f"{code_to_flag(c['location_code'])} {c['location_name']}" for c in countries) \
-        if countries else "страны не найдены"
+    countries_text = await esim_lists.esim_global_countries(plan.id, user_language)
+    if not countries_text:
+        countries_text = get_text(user_language, "error.countries_not_found")
 
     # Клавиатура
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=f"Купить eSIM • {plan.price}$", callback_data=f"buy_esim_global_{plan.id}")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim.current_tariff").format(price=format_number(plan.price)), callback_data=f"buy_esim_global_{plan.id}")],
             [
-                InlineKeyboardButton(text="Назад", callback_data="global_esim_inline_menu"),
-                InlineKeyboardButton(text="Закрыть", callback_data="close_inline_menu")
+                InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data="global_esim_inline_menu"),
+                InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
             ]
         ]
     )
 
-    # Основной текст
-    text = (
-        "*🌍 Международная eSIM*\n"
-        f"Вы выбрали eSIM с тарифом *{plan.gb} ГБ на {plan.days} дней*. В тариф также входит:\n"
-        "   • Неограниченная скорость;\n"
-        "   • Безопасное соединение;\n"
-        "   • Режим модема.\n\n"
-        f"🗺️ eSIM будет работать в следующих странах: {countries_text}\n\n"
-        "⚠️ На eSIM доступен только интернет-трафик, который работает в указанных странах. "
-        "Для оформления eSIM не требуется удостоверение личности.\n\n"
-        "После оплаты Вы получите QR-код и дополнительную информацию для установки eSIM. "
-        "Срок действия eSIM отсчитывается с момента ее активации на Вашем устройстве.\n\n"
-        "---------\n\n"
-        "Перед покупкой eSIM, пожалуйста, убедитесь, что Ваше устройство поддерживается "
-        "(iOS (https://t.me/fedafone_bot/ios_ru), Android (https://t.me/fedafone_bot/android_ru), "
-        "Windows (https://t.me/fedafone_bot/windows_ru)).\n\n"
-        "Нажимая кнопку Купить eSIM Вы соглашаетесь с условиями и положениями "
-        "(https://t.me/fedafone_bot/terms_ru).\n\n"
-        "💳 Изменить способ оплаты можно в меню Настройки."
-    )
-
-    await callback.message.answer(text, reply_markup=kb, parse_mode="Markdown")
-
-# Региональные eSIM: Купить eSIM -> Региональные eSIM
-async def inline_menu_regional_esim(message: types.Message):
-    data = await esim_lists.esim_regional()
-    kb = paginate_buttons_region(data, page=0)
-    await message.answer(
-        "*🌍 Региональные eSIM-пакеты:*\n"
-        "Пожалуйста, выберите регион, где Вам нужен мобильный интернет:",
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.global_esim.current_tariff.text_menu").format(gb=format_number(plan.gb), days=plan.days, countries=countries_text),
         reply_markup=kb,
         parse_mode="Markdown"
     )
+
+
 
 #Мои eSIM
-async def inline_menu_my_eSIM(message: types.Message):
+async def inline_menu_my_eSIM(message: types.Message, user_language: str):
+    # user_language = await get_user_lang_from_redis(message.from_user.id) or await get_user_lang_from_db(message.from_user.id)
+
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Купить eSIM", callback_data="btn1")],
-            [InlineKeyboardButton(text="Закрыть", callback_data="close_inline_menu")]
+            [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
         ]
     )
 
     await message.answer(
-        "*Мои eSIM*\n"
-        "У Вас пока нет ни одной eSIM. Хотите купить eSIM?",
+        get_text(user_language, "text.inline_menu.my_esim.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
     )
 
-#Настройки
-async def inline_menu_settings(message: types.Message):
+
+# Настройки
+async def inline_menu_settings(message: types.Message, user_language: str):
+
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Способы оплаты ⇨", callback_data="btn1")],
-            [InlineKeyboardButton(text="Язык / Language ⇨", callback_data="btn2")],
-            [InlineKeyboardButton(text="Закрыть", callback_data="close_inline_menu")]
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.payment_methods"), callback_data="btn1")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.change_language"), callback_data="change_language_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
         ]
     )
 
     await message.answer(
-        "*Настройки*\n"
-        "Пожалуйста, выберите необходимый пункт:",
+        get_text(user_language, "text.inline_menu.settings.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
     )
+
+# Настройки(Дубликат с другим параметром, НЕОБХОДИМ ДЛЯ РАБОТЫ)
+async def inline_menu_settings_callback(callback: CallbackQuery, user_language: str):
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.payment_methods"), callback_data="btn1")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.change_language"), callback_data="change_language_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
+        ]
+    )
+
+    await callback.message.answer(
+        get_text(user_language, "text.inline_menu.settings.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+
+async def inline_menu_settings_change_language(callback: CallbackQuery, user_language: str):
+    user_language = await get_user_lang_from_redis(callback.from_user.id) or await get_user_lang_from_db(callback.from_user.id)
+    
+    lang_ru_text = get_text(user_language, "button.inline_menu.settings.change_language.ru")
+    lang_en_text = get_text(user_language, "button.inline_menu.settings.change_language.en")
+
+    print("[DEBUG]: inline_menu_settings_change_language: user_id: ",callback.from_user.id)
+    print("[DEBUG]: inline_menu_settings_change_language: lang: ",user_language)
+    # "✅" к выбранному языку
+    if user_language == "ru":
+        lang_ru_text = f"✅ {lang_ru_text}"
+    elif user_language == "en":
+        lang_en_text = f"✅ {lang_en_text}"
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text=lang_ru_text, callback_data="change_language_ru_inline_menu"),
+                InlineKeyboardButton(text=lang_en_text, callback_data="change_language_en_inline_menu")
+            ],
+            [
+                InlineKeyboardButton(text=get_text(user_language, "button.menu"), callback_data="inline_menu_settings_callback"),
+                InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
+            ]
+        ]
+    )
+
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.settings.change_language.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
 
 #Помощь
-async def inline_menu_help(message: types.Message):
+async def inline_menu_help(message: types.Message, user_language: str):
+
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="Справочный центр", callback_data="btn1")],
-            [InlineKeyboardButton(text="IOS", callback_data="btn2"), InlineKeyboardButton(text="Android", callback_data="btn3"), InlineKeyboardButton(text="Windows", callback_data="btn4")],
-            [InlineKeyboardButton(text="Веб-сайт telegram-payment-bot", callback_data="btn3")],
-            [InlineKeyboardButton(text="Приложение telegram-payment-bot для iPhone", callback_data="btn3")],
-            [InlineKeyboardButton(text="Реферальная программа", callback_data="btn3")],
-            [InlineKeyboardButton(text="Закрыть", callback_data="close_inline_menu")]
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.help.help_center"), callback_data="btn1")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.help.ios"), callback_data="btn2"), InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.help.android"), callback_data="btn3"), InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.help.windows"), callback_data="btn4")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.help.website"), callback_data="btn3")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.help.application_for_ios"), callback_data="btn3")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.help.referral_program"), callback_data="btn3")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
         ]
     )
 
     await message.answer(
-        "*Помощь*\n"
-        "Вы можете обратиться напрямую в техническую поддержку @telegramPaymentBotSupport или выбрать нужный раздел:",
+        get_text(user_language, "text.inline_menu.help.text_menu"),
         reply_markup=kb,
         parse_mode="Markdown"
     )
 
-#Тестовая покупка
-async def inline_menu_buy_eSIM_ru(message: types.Message):
+
+#Тестовая покупка ("Популярные направления")
+async def inline_menu_buy_eSIM_ru(callback: CallbackQuery):
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [InlineKeyboardButton(text="1 ГБ на 7 дней -> 5$", callback_data="tariff_ru_1")],
@@ -163,19 +338,9 @@ async def inline_menu_buy_eSIM_ru(message: types.Message):
         ]
     )
 
-    await message.answer(
+    await callback.message.edit_text(
         "*🇷🇺 Россия*\n"
         "Пожалуйста, выберите необходимый объем интернет-трафика:",
         reply_markup=kb,
         parse_mode="Markdown"
     )
-
-
-# Функция для получения флага по коду страны (например, "US" -> 🇺🇸) НЕ УДАЛЯТЬ БЛЯТЬ, ПОТОМ САМ ПЕРЕМЕЩУ!
-def code_to_flag(code: str) -> str:
-    return "".join(chr(127397 + ord(c.upper())) for c in code)
-
-
-
-
-

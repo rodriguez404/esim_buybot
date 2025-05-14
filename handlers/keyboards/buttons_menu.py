@@ -1,14 +1,63 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+from localization.localization import get_text
+from microservices.format_number_UI import format_number
 
-# Международные eSIM
-def buttons_global_esim(plans: list[list[int]], page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
-    """
-    :param plans: список тарифов в формате [id, gb, days, price]
-    :param page: текущая страница
-    :param buttons_per_page: количество кнопок на страницу
-    :return: InlineKeyboardMarkup с пагинацией
-    """
+
+
+# Местные eSIM: Купить eSIM -> Местные eSIM (список стран)
+def buttons_local_countries_esim(countries_list: list[list[int]], user_language: str = "ru", page: int = 0, buttons_per_page: int = 16) -> InlineKeyboardMarkup:
+
+    total_pages = (len(countries_list) + buttons_per_page - 1) // buttons_per_page
+
+    page = max(0, min(page, total_pages - 1))
+
+    start = page * buttons_per_page
+    end = start + buttons_per_page
+    current_page_data = countries_list[start:end]
+
+    keyboard = []
+
+    # Формируем кнопки стран в 2 столбца
+    for i in range(0, len(current_page_data), 2):  # Шаг 2 для двух кнопок в строке
+        row = []
+        # Добавляем первую кнопку в строку
+        if i < len(current_page_data):
+            country_id, country_name, country_code = current_page_data[i]
+            row.append(InlineKeyboardButton(
+                text=f"{country_code}{country_name}",
+                callback_data=f"country_id_{country_id}"
+            ))
+        # Добавляем вторую кнопку в строку (если есть)
+        if i + 1 < len(current_page_data):
+            country_id, country_name, country_code = current_page_data[i + 1]
+            row.append(InlineKeyboardButton(
+                text=f"{country_code}{country_name}",
+                callback_data=f"country_id_{country_id}"
+            ))
+        keyboard.append(row)
+
+    navigation_buttons = []
+
+    if page > 0:
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"countries_list_page_{page - 1}"))
+    if end < len(countries_list):
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.next"), callback_data=f"countries_list_page_{page + 1}"))
+
+    if navigation_buttons:
+        keyboard.append(navigation_buttons)
+
+    keyboard.append([
+        InlineKeyboardButton(text=get_text(user_language, "button.menu"), callback_data="inline_menu_buy_eSIM_callback"),
+        InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
+    ])
+
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+# Местные eSIM: Купить eSIM -> Местные eSIM (список стран) -> Тарифы конкретной страны
+def buttons_local_esim_selected(plans: list[list[int]], country_id: int, user_language: str = "ru", page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
+
     total_pages = (len(plans) + buttons_per_page - 1) // buttons_per_page
     page = max(0, min(page, total_pages - 1))
 
@@ -21,56 +70,132 @@ def buttons_global_esim(plans: list[list[int]], page: int = 0, buttons_per_page:
     # Формируем один столбец для тарифов
     for plan in current_page_data:
         plan_id, gb, days, price = plan
-        text = f"{gb} ГБ на {days} дней — {price}$"
-        callback_data = f"global_plan_{plan_id}"
+        text = get_text(user_language, "button.keyboards.buy_esim.local_esim.all_tariffs.current_tariff").format(gb=format_number(gb), days=days, price=format_number(price))
+        callback_data = f"selected_country_id_plan_{country_id}_{plan_id}"
         keyboard.append([InlineKeyboardButton(text=text, callback_data=callback_data)])
 
     # Навигация по страницам в 2 столбца, если есть
     navigation_buttons = []
     if page > 0:
-        navigation_buttons.append(InlineKeyboardButton(text="⬅️ Назад", callback_data=f"global_page_{page - 1}"))
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"selected_country_id_page_{country_id}_{page - 1}"))
     if end < len(plans):
-        navigation_buttons.append(InlineKeyboardButton(text="➡️ Далее", callback_data=f"global_page_{page + 1}"))
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.next"), callback_data=f"selected_country_id_page_{country_id}_{page + 1}"))
 
     if navigation_buttons:
         keyboard.append(navigation_buttons)
 
     # Добавляем нижние кнопки
     keyboard.append([
-        InlineKeyboardButton(text="Меню", callback_data="inline_menu_buy_eSIM"),
-        InlineKeyboardButton(text="Закрыть", callback_data="close_inline_menu")
+        InlineKeyboardButton(text=get_text(user_language, "button.menu"), callback_data="local_esim_inline_menu"),
+        InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
     ])
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
+# Региональные eSIM: Купить eSIM -> Региональные eSIM
+def buttons_region_esim(plans: list[list[int]], user_language: str = "ru", page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
+    total_pages = (len(plans) + buttons_per_page - 1) // buttons_per_page
 
-def paginate_buttons_region(data, page=0, buttons_per_page=15):
-    total_pages = (len(data) + buttons_per_page - 1) // buttons_per_page
     page = max(0, min(page, total_pages - 1))
 
     start = page * buttons_per_page
     end = start + buttons_per_page
-    page_data = data[start:end]
+    current_page_data = plans[start:end]
 
-    # Создаем по 2 кнопки в ряд
-    rows = []
-    for i in range(0, len(page_data), 2):
-        row = []
-        for item in page_data[i:i+2]:
-            name = item
-            text = f"{name}"
-            callback = f"select_region_{name.replace(' ', '_')}"  # или другой идентификатор
-            row.append(InlineKeyboardButton(text=text, callback_data=callback))
-        rows.append(row)
+    keyboard = []
 
-    # Кнопки "Назад/Далее"
-    nav = []
+    # Формируем один столбец для регионов
+    for plan in current_page_data:
+        region_id, region_name = plan
+        text = f"{region_name}"
+        callback_data = f"region_id_{region_id}"
+        keyboard.append([InlineKeyboardButton(text=text, callback_data=callback_data)])
+
+    navigation_buttons = []
+
     if page > 0:
-        nav.append(InlineKeyboardButton(text="⬅️ Назад", callback_data=f"page_{page-1}"))
-    if end < len(data):
-        nav.append(InlineKeyboardButton(text="➡️ Далее", callback_data=f"page_{page+1}"))
-    if nav:
-        rows.append(nav)
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"regional_page_{page - 1}"))
+    if end < len(plans):
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.next"), callback_data=f"regional_page_{page + 1}"))
 
-    return InlineKeyboardMarkup(inline_keyboard=rows)
+    if navigation_buttons:
+        keyboard.append(navigation_buttons)
+
+    keyboard.append([
+        InlineKeyboardButton(text=get_text(user_language, "button.menu"), callback_data="inline_menu_buy_eSIM_callback"),
+        InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
+    ])
+
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+# Региональные eSIM: Купить eSIM -> Региональные eSIM -> Все тарифы конкретного региона
+def buttons_region_esim_selected(plans: list[list[int]], region_id: int, user_language: str = "ru", page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
+
+    total_pages = (len(plans) + buttons_per_page - 1) // buttons_per_page
+    page = max(0, min(page, total_pages - 1))
+
+    start = page * buttons_per_page
+    end = start + buttons_per_page
+    current_page_data = plans[start:end]
+
+    keyboard = []
+
+    # Формируем один столбец для тарифов
+    for plan in current_page_data:
+        plan_id, gb, days, price = plan
+        text = get_text(user_language, "button.keyboards.buy_esim.regional_esim.all_tariffs.current_tariff").format(gb=format_number(gb), days=days, price=format_number(price))
+        callback_data = f"regional_selected_region_plan_{region_id}_{plan_id}"
+        keyboard.append([InlineKeyboardButton(text=text, callback_data=callback_data)])
+
+    navigation_buttons = []
+    if page > 0:
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"regional_region_page_{region_id}_{page - 1}"))
+    if end < len(plans):
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.next"), callback_data=f"regional_region_page_{region_id}_{page + 1}"))
+
+    if navigation_buttons:
+        keyboard.append(navigation_buttons)
+
+    keyboard.append([
+        InlineKeyboardButton(text=get_text(user_language, "button.menu"), callback_data="region_esim_inline_menu"),
+        InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
+    ])
+
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+# Международные eSIM: Купить eSIM -> Международные eSIM
+def buttons_global_esim(plans: list[list[int]], user_language: str = "ru", page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
+    total_pages = (len(plans) + buttons_per_page - 1) // buttons_per_page
+    page = max(0, min(page, total_pages - 1))
+
+    start = page * buttons_per_page
+    end = start + buttons_per_page
+    current_page_data = plans[start:end]
+
+    keyboard = []
+
+    # Формируем один столбец для тарифов
+    for plan in current_page_data:
+        plan_id, gb, days, price = plan
+        text = get_text(user_language, "button.keyboards.buy_esim.global_esim").format(gb=format_number(gb), days=days, price=format_number(price))
+        callback_data = f"global_plan_{plan_id}"
+        keyboard.append([InlineKeyboardButton(text=text, callback_data=callback_data)])
+
+    navigation_buttons = []
+    if page > 0:
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"global_page_{page - 1}"))
+    if end < len(plans):
+        navigation_buttons.append(InlineKeyboardButton(text=get_text(user_language, "button.next"), callback_data=f"global_page_{page + 1}"))
+
+    if navigation_buttons:
+        keyboard.append(navigation_buttons)
+
+    keyboard.append([
+        InlineKeyboardButton(text=get_text(user_language, "button.menu"), callback_data="inline_menu_buy_eSIM_callback"),
+        InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
+    ])
+
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
