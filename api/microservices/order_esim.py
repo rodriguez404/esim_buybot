@@ -1,8 +1,8 @@
-import httpx
 import hashlib
 import time
 import json
 
+from http_client import get_session
 from config import ESIM
 
 
@@ -28,7 +28,7 @@ async def order_esim(package_code: str, count: int = 1):
         "Content-Type": "application/json"
     }
 
-    async with httpx.AsyncClient() as client:
+    async with get_session() as client:
         response = await client.post(url, json=body, headers=headers)
         response.raise_for_status()
         return response.json()
