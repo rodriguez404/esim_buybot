@@ -10,5 +10,5 @@ async def get_cache_json(key):
         return None
     
     result = await get_redis().get(key)
-    logging.debug(f"[DEBUG]: Redis: __get_cache_json_{key}__:", result)
+    # logging.debug(f"[DEBUG]: Redis: __get_cache_json_{key}__:", result)
     return json.loads(result) if result else None

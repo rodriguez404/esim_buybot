@@ -4,13 +4,15 @@ from tortoise import Tortoise
 
 from database.models.esim_global import DataBase_EsimPackageGlobal, DataBase_EsimCountryGlobal
 
-from api.esim_access import fetch, url_packagelist
+from api.esim_access import fetch
+
+from config import ESIM
 
 async def update_esim_packages_global():
     await DataBase_EsimPackageGlobal.all().delete()
     await DataBase_EsimCountryGlobal.all().delete()
 
-    data = await fetch(url_packagelist, payload={'locationCode': '!GL'})
+    data = await fetch(ESIM.API_PACKAGELIST_URL, payload={'locationCode': '!GL'})
     package_list = data.get('obj', {}).get('packageList', [])
 
     for package in package_list:

@@ -1,11 +1,13 @@
 import os
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 
 BOT_TOKEN = os.getenv("bot_token")
 PAYMENTS_TOKEN = os.getenv("payments_token")
 SUPPORTED_LANGUAGES = {"ru", "en"}
+ADMINS = json.loads(os.getenv("admins_list"))
 
 class DATABASE:
     HOST = os.getenv("database_host")
@@ -13,6 +15,7 @@ class DATABASE:
 class REDIS:
     HOST_URL = os.getenv("redis_host_url")
     PORT = os.getenv("redis_port")
+    LOCAL_PASSWORD = os.getenv("redis_local_password")
 
 class ESIM:
     ACCESS_CODE = os.getenv("esim_access_code")

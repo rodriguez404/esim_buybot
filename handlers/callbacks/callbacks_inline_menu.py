@@ -160,7 +160,7 @@ async def selected_plan_local(callback: types.CallbackQuery, user_language: str)
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная Страна -> Все тарифы по стране -> Переключение страниц по кнопкам "назад", "далее"
-@router.callback_query(lambda c: c.data.startswith("selected_country_id_page_"))
+@router.callback_query(lambda c: c.data.startswith("selected_country_plans_page_"))
 async def callback_region_page(callback: types.CallbackQuery, user_language: str):
 
     page = int(callback.data.split("_")[-1])
@@ -195,7 +195,7 @@ async def settings_change_language(callback: CallbackQuery, user_language: str):
 
 # Настройки: Язык / Language -> RU/EN (Вполне универсальна, для дальнейшего расширения локализации добавляем только колбек в нужной форме)
 @router.callback_query(F.data.in_({"change_language_ru_inline_menu", "change_language_en_inline_menu"}))
-async def settings_change_language(callback: CallbackQuery, user_language: str):
+async def settings_change_language(callback: CallbackQuery, user_language: str, user_rights: str):
     lang_code = callback.data.split("_")[2]
     # current_language = await get_user_lang_from_db(callback.from_user.id)
     current_language = user_language
@@ -218,7 +218,7 @@ async def settings_change_language(callback: CallbackQuery, user_language: str):
         except Exception as e:
             print(f"Не удалось удалить сообщение пользователя: {e}")
 
-        await show_reply_menu(callback.message, user_language=user_language)
+        await show_reply_menu(callback.message, user_language=user_language, user_rights=user_rights)
 
     else:
         await callback.answer(get_text(user_language, "error.change_language"), show_alert=False)

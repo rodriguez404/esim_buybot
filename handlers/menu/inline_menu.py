@@ -99,7 +99,7 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: 
         inline_keyboard=[
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff").format(price=format_number(plan.price)), callback_data=f"buy_esim_selected_country_plan_{country_id}_{plan.id}")],
             [
-                InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"selected_country_id_page_{country_id}_0"),
+                InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"selected_country_plans_page_{country_id}_0"),
                 InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
             ]
         ]
@@ -244,7 +244,7 @@ async def inline_menu_settings(message: types.Message, user_language: str):
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.payment_methods"), callback_data="btn1")],
+            # [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.payment_methods"), callback_data="btn1")], # Способы оплаты
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.change_language"), callback_data="change_language_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
         ]
@@ -261,7 +261,23 @@ async def inline_menu_settings_callback(callback: CallbackQuery, user_language: 
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.payment_methods"), callback_data="btn1")],
+            # [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.payment_methods"), callback_data="btn1")], # Способы оплаты
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.change_language"), callback_data="change_language_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
+        ]
+    )
+
+    await callback.message.answer(
+        get_text(user_language, "text.inline_menu.settings.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+# Админка
+async def inline_menu_admin(callback: CallbackQuery, user_language: str):
+
+    kb = InlineKeyboardMarkup(
+        inline_keyboard=[
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.settings.change_language"), callback_data="change_language_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
         ]
