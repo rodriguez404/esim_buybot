@@ -12,7 +12,9 @@ async def get_user_lang_from_redis(user_id: int) -> str:
             return lang
         else:
             logging.debug(f"[Redis] CACHE MISS for user_lang:{user_id}. Запись кэша")
-            await redis.setex(f"user_lang:{user_id}", 86400, get_user_lang_from_db)
+            lang_from_db = await get_user_lang_from_db(user_id)
+            await redis.setex(f"user_lang:{user_id}", 86400, lang_from_db)
+            logging.debug(f"[Redis] CACHE SET for user_lang:{user_id}: {lang_from_db}")
 
     else:
         logging.debug("[Redis] Redis не работает. Переход к БД")
