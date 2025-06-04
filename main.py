@@ -51,10 +51,10 @@ async def main():
     await init_db()
 
     # Планировщик - для автоматического обновления БД
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(update_all_packages, 'interval', hours=24) # Обновлять всё каждые 24 часа
-    scheduler.start()
-    print("🔁 Планировщик обновлений работает")
+    # scheduler = AsyncIOScheduler()
+    # scheduler.add_job(update_all_packages, 'interval', hours=24) # Обновлять всё каждые 24 часа
+    # scheduler.start()
+    # print("🔁 Планировщик обновлений работает")
     
     dp = await init_dispatcher()
 

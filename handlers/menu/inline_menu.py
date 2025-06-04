@@ -99,7 +99,7 @@ async def inline_menu_local_esim_tariff(callback: CallbackQuery, user_language: 
         inline_keyboard=[
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim.all_tariffs.current_tariff").format(price=format_number(plan.price)), callback_data=f"buy_esim_selected_country_plan_{country_id}_{plan.id}")],
             [
-                InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"selected_country_id_page_{country_id}_0"),
+                InlineKeyboardButton(text=get_text(user_language, "button.back"), callback_data=f"selected_country_plans_page_{country_id}_0"),
                 InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")
             ]
         ]

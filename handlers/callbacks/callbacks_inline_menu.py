@@ -160,7 +160,7 @@ async def selected_plan_local(callback: types.CallbackQuery, user_language: str)
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная Страна -> Все тарифы по стране -> Переключение страниц по кнопкам "назад", "далее"
-@router.callback_query(lambda c: c.data.startswith("selected_country_id_page_"))
+@router.callback_query(lambda c: c.data.startswith("selected_country_plans_page_"))
 async def callback_region_page(callback: types.CallbackQuery, user_language: str):
 
     page = int(callback.data.split("_")[-1])

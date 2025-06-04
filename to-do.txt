@@ -12,46 +12,6 @@ TO-DO:
 добавить админку (для %накрута)
 
 ?исправить структурный анти-паттерн кода и адаптировать под The Principle of Least Astonishment (POLA)
-Пример:
-Переписать комбинацию хэндлера и функции ИЗ
-
-@router.callback_query(F.data == "local_esim_inline_menu")
-async def local_countries_esim_callback(callback: CallbackQuery, user_language: str):
-
-    await inline_menu.inline_menu_esim_local_countries(callback, user_language)
-
-
-async def inline_menu_esim_local_countries(callback: CallbackQuery, user_language: str):
-
-    data = await get_cache_json(key=f"esim_local_countries_{user_language}") or await esim_lists.esim_local_countries(user_language)
-    kb = buttons_menu.buttons_local_countries_esim(data, user_language, page=0)
-
-    await callback.message.edit_text(
-        get_text(user_language, "text.inline_menu.buy_esim.local_esim.text_menu"),
-        reply_markup=kb,
-        parse_mode="Markdown"
-    )
-
-В:
-
-@router.callback_query(F.data == "local_esim_inline_menu")
-async def local_countries_esim_callback(callback: CallbackQuery, user_language: str):
-
-    kb = await inline_menu.inline_menu_esim_local_countries_kb(callback, user_language)
-
-    await callback.message.edit_text(
-        get_text(user_language, "text.inline_menu.buy_esim.local_esim.text_menu"),
-        reply_markup=kb,
-        parse_mode="Markdown"
-    )
-
-
-async def inline_menu_esim_local_countries_kb(callback: CallbackQuery, user_language: str):
-
-    data = await get_cache_json(key=f"esim_local_countries_{user_language}") or await esim_lists.esim_local_countries(user_language)
-    kb = buttons_menu.buttons_local_countries_esim(data, user_language, page=0)
-
-    return kb
 
 (дробление функционала для достижения принципа минимальной уровнеспецификации и принципа единой ответственности (SOLID))
 ...
