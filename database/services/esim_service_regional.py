@@ -1,7 +1,8 @@
 import re
 from tortoise import Tortoise
 from database.models.esim_regional import DataBase_Region, DataBase_RegionalTariff, DataBase_RegionalCountry
-from api.esim_access import fetch, url_packagelist
+from api.esim_access import fetch
+from config import ESIM
 
 
 def parse_slug(slug: str):
@@ -22,7 +23,7 @@ async def update_esim_packages_regional():
     await DataBase_RegionalTariff.all().delete()
     await DataBase_Region.all().delete()
 
-    data = await fetch(url_packagelist, payload={'locationCode': '!RG'})
+    data = await fetch(ESIM.API_PACKAGELIST_URL, payload={'locationCode': '!RG'})
     package_list = data.get('obj', {}).get('packageList', [])
 
     region_map = {}  # code -> Region object

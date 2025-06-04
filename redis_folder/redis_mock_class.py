@@ -1,4 +1,4 @@
-# Заглушка, если подключение к Redis не удалось - должен логировать ошибки
+# Заглушка, если подключение к Redis не удалось
 class AsyncDummyRedis:
     async def get(self, *args, **kwargs):
         return None

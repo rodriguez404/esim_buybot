@@ -4,6 +4,7 @@ import json
 
 from http_client import get_session
 from config import ESIM
+from esim_access import fetch
 
 
 def generate_signature(body: dict, timestamp: str) -> str:

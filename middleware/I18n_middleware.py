@@ -31,5 +31,5 @@ class I18nMiddleware(BaseMiddleware):
             return await handler(event, data)
 
         # Иначе - вернуть дефолт
-        data["user_language"] = "ru" # стандартный язык
+        data["user_language"] = "en" # стандартный язык
         return await handler(event, data)

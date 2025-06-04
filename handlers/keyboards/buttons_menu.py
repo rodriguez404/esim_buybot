@@ -6,7 +6,7 @@ from microservices.format_number_UI import format_number
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM (список стран)
-def buttons_local_countries_esim(countries_list: list[list[int]], user_language: str = "ru", page: int = 0, buttons_per_page: int = 16) -> InlineKeyboardMarkup:
+def buttons_local_countries_esim(countries_list: list[list[int]], user_language: str, page: int = 0, buttons_per_page: int = 16) -> InlineKeyboardMarkup:
 
     total_pages = (len(countries_list) + buttons_per_page - 1) // buttons_per_page
 
@@ -56,7 +56,7 @@ def buttons_local_countries_esim(countries_list: list[list[int]], user_language:
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM (список стран) -> Тарифы конкретной страны
-def buttons_local_esim_selected(plans: list[list[int]], country_id: int, user_language: str = "ru", page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
+def buttons_local_esim_selected(plans: list[list[int]], country_id: int, user_language: str, page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
 
     total_pages = (len(plans) + buttons_per_page - 1) // buttons_per_page
     page = max(0, min(page, total_pages - 1))
@@ -94,7 +94,7 @@ def buttons_local_esim_selected(plans: list[list[int]], country_id: int, user_la
 
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM
-def buttons_region_esim(plans: list[list[int]], user_language: str = "ru", page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
+def buttons_region_esim(plans: list[list[int]], user_language: str, page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
     total_pages = (len(plans) + buttons_per_page - 1) // buttons_per_page
 
     page = max(0, min(page, total_pages - 1))
@@ -131,7 +131,7 @@ def buttons_region_esim(plans: list[list[int]], user_language: str = "ru", page:
 
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Все тарифы конкретного региона
-def buttons_region_esim_selected(plans: list[list[int]], region_id: int, user_language: str = "ru", page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
+def buttons_region_esim_selected(plans: list[list[int]], region_id: int, user_language: str, page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
 
     total_pages = (len(plans) + buttons_per_page - 1) // buttons_per_page
     page = max(0, min(page, total_pages - 1))
@@ -167,7 +167,7 @@ def buttons_region_esim_selected(plans: list[list[int]], region_id: int, user_la
 
 
 # Международные eSIM: Купить eSIM -> Международные eSIM
-def buttons_global_esim(plans: list[list[int]], user_language: str = "ru", page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
+def buttons_global_esim(plans: list[list[int]], user_language: str, page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
     total_pages = (len(plans) + buttons_per_page - 1) // buttons_per_page
     page = max(0, min(page, total_pages - 1))
 
