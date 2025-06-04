@@ -1,3 +1,4 @@
+from database.functions.get_user_lang_from_db import get_user_lang_from_db
 from redis_folder.redis_client import get_redis, AsyncDummyRedis
 import logging
 
@@ -10,6 +11,8 @@ async def get_user_lang_from_redis(user_id: int) -> str:
             logging.debug(f"[Redis] Найден язык для пользователя {user_id}: {lang}")
             return lang
         else:
-            logging.debug(f"[Redis] CACHE MISS for user_lang:{user_id}")
+            logging.debug(f"[Redis] CACHE MISS for user_lang:{user_id}. Запись кэша")
+            await redis.setex(f"user_lang:{user_id}", 86400, get_user_lang_from_db)
+
     else:
         logging.debug("[Redis] Redis не работает. Переход к БД")

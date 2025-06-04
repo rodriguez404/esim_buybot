@@ -8,6 +8,7 @@ from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
 from loader import bot, init_dispatcher, router
+from redis_folder.functions.set_static_cache import set_static_cache
 from redis_folder.redis_client import get_redis
 
 # Необходимы для корректной работы, несмотря на то, что визуально в мейне не используются
@@ -36,9 +37,9 @@ async def set_commands(bot: Bot):
     await bot.set_my_commands(commands)
 
 @router.message(Command("start"))
-async def cmd_start(message: types.Message, user_language: str):
+async def cmd_start(message: types.Message, user_language: str, user_rights: str):
     await get_or_create_user_db(message.from_user)
-    await reply_menu.show_reply_menu(message, user_language)   # После регистрации или проверки, показываем главное меню
+    await reply_menu.show_reply_menu(message, user_language, user_rights)   # После регистрации или проверки, показываем главное меню
 
 @router.message(Command("id"))
 async def cmd_id(message: types.Message):
@@ -57,6 +58,8 @@ async def main():
     # print("🔁 Планировщик обновлений работает")
     
     dp = await init_dispatcher()
+
+    await set_static_cache()
 
     await set_commands(bot) # Устанавливаем команды для меню слева
     try:

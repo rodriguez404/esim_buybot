@@ -7,7 +7,7 @@ from redis_folder.redis_mock_class import AsyncDummyRedis
 # Попытка подключения к серверу. Возвращает заглушку, если не удалось
 redis_client: Redis | None = None
 redis_is_working: bool = False
-async def init_redis_connection(host=REDIS.HOST_URL, port=6379):
+async def init_redis_connection(host=REDIS.HOST_URL, port=REDIS.PORT):
     global redis_client
     try:
         redis_client = Redis(host=host, port=port, decode_responses=True, socket_connect_timeout=3)

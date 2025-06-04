@@ -15,9 +15,9 @@ def generate_paginated_kb(
     button_formatter=None,
 ) -> InlineKeyboardMarkup:
     """
-    :data: Список элементов для отображения
+    :data: Парсинг данных для отображения (с редиса или бд)
     :user_language: Язык пользователя
-    :page: Текущая страница
+    :page: Текущая страница (по дефолту 0)
     :buttons_per_page: Количество кнопок на странице (по дефолту 8)
     :columns: Количество столбцов (1 или 2, по дефолту 1)
     :menu_callback: Коллбэк для возврата в меню (по дефолту возвращает на главную, но меняется для возврата в меню местных, меню регионов и тд)
@@ -67,10 +67,12 @@ def generate_paginated_kb(
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
+
 # Форматирование кнопки страны
 def format_country_button(item, user_language):
     country_id, country_name, country_flag = item
     return InlineKeyboardButton(text=f"{country_flag}{country_name}",callback_data=f"country_id_{country_id}")
+
 
 # Форматирование кнопки региона
 def format_region_button(item, user_language):

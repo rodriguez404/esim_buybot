@@ -4,6 +4,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.storage.redis import RedisStorage
 from redis_folder.redis_client import AsyncDummyRedis, init_redis_connection
 from middleware.I18n_middleware import I18nMiddleware
+from middleware.user_rights_middleware import UserRightsMiddleware
 
 bot = Bot(token=BOT_TOKEN)
 router = Router()
@@ -37,4 +38,5 @@ async def init_dispatcher():
     dp = Dispatcher(storage=storage)
     dp.include_router(router)
     dp.update.middleware(I18nMiddleware())
+    dp.update.middleware(UserRightsMiddleware())
     return dp
