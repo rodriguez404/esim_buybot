@@ -6,16 +6,17 @@ from config import ESIM
 
 
 def parse_slug(slug: str):
-    match = re.match(r"(?P<code>[A-Z]+)-\d+_(?P<gb>[\d.]+)_(?P<days>\d+|Daily)", slug)
+    match = re.match(r"(?P<code>[A-Z]+)-(?P<country_count>\d+)_+(?P<gb>[\d.]+)_(?P<days>\d+|Daily)", slug)
     if not match:
         return None
 
     code = match.group("code")
+    country_count = int(match.group("country_count"))
     gb = float(match.group("gb"))
     days_raw = match.group("days")
     days = 1 if days_raw == "Daily" else int(days_raw)
 
-    return code, gb, days
+    return code, country_count, gb, days
 
 async def update_esim_packages_regional():
     # Очистка таблиц
@@ -23,8 +24,16 @@ async def update_esim_packages_regional():
     await DataBase_RegionalTariff.all().delete()
     await DataBase_Region.all().delete()
 
-    data = await fetch(ESIM.API_PACKAGELIST_URL, payload={'locationCode': '!RG'})
-    package_list = data.get('obj', {}).get('packageList', [])
+    # Получаем региональные тарифы
+    regional_data = await fetch(ESIM.API_PACKAGELIST_URL, payload={'locationCode': '!RG'})
+    regional_packages = regional_data.get('obj', {}).get('packageList', [])
+
+    # Получаем глобальные тарифы
+    global_data = await fetch(ESIM.API_PACKAGELIST_URL, payload={'locationCode': '!GL'})
+    global_packages = global_data.get('obj', {}).get('packageList', [])
+
+    # Объединяем оба списка
+    package_list = regional_packages + global_packages
 
     region_map = {}  # code -> Region object
 
@@ -42,15 +51,18 @@ async def update_esim_packages_regional():
             print(f"⚠️ Пропущено: не удалось распарсить slug: {slug}")
             continue
 
-        code, gb, days = parsed
-        region_name = REGION_CODE_MAP.get(code, code)  # используем map, если нет — оставляем код
+        code, country_count, gb, days = parsed
+
+        # Получаем человекочитаемое имя региона + кол-во стран
+        base_region_name = REGION_CODE_MAP.get(code, code)
+        region_name = f"{base_region_name} {country_count}"
 
         # Создание региона, если его нет
-        if code not in region_map:
+        if region_name not in region_map:
             region_obj = await DataBase_Region.create(name=region_name)
-            region_map[code] = region_obj
+            region_map[region_name] = region_obj
         else:
-            region_obj = region_map[code]
+            region_obj = region_map[region_name]
 
         # Создание тарифа
         tariff_obj = await DataBase_RegionalTariff.create(
@@ -92,6 +104,7 @@ REGION_CODE_MAP = {
     "CA": "Central Asia",
     "GL": "Global",
     "SEA": "Southeast Asia",
+    "AUNZ": "Oceania",
     "SGMYTH": "Southeast Asia",
     "CNJPKR": "East Asia"
 }

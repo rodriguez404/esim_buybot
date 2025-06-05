@@ -22,8 +22,8 @@ async def inline_menu_buy_eSIM(message: types.Message, user_language: str):
         inline_keyboard=[
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.popular_destinations"), callback_data="btn1")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim"), callback_data="local_esim_inline_menu")],
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_esim"), callback_data="region_esim_inline_menu")],
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim"), callback_data="global_esim_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_and_global_esim"), callback_data="region_esim_inline_menu")],
+            # [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim"), callback_data="global_esim_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
         ]
     )
@@ -41,8 +41,8 @@ async def inline_menu_buy_eSIM_callback(callback: CallbackQuery, user_language: 
         inline_keyboard=[
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.popular_destinations"), callback_data="btn1")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim"), callback_data="local_esim_inline_menu")],
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_esim"), callback_data="region_esim_inline_menu")],
-            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim"), callback_data="global_esim_inline_menu")],
+            [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_and_global_esim"), callback_data="region_esim_inline_menu")],
+            # [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim"), callback_data="global_esim_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
         ]
     )

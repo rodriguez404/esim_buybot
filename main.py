@@ -24,6 +24,7 @@ from database.models.user import DataBase_User  # Правильный импо�
 from database.services.user_service import get_or_create_user_db
 # Обновление бд
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from datetime import datetime
 from microservices.update_all_packages import update_all_packages
 
 logging.basicConfig(level=logging.DEBUG)
@@ -52,10 +53,10 @@ async def main():
     await init_db()
 
     # Планировщик - для автоматического обновления БД
-    # scheduler = AsyncIOScheduler()
-    # scheduler.add_job(update_all_packages, 'interval', hours=24) # Обновлять всё каждые 24 часа
-    # scheduler.start()
-    # print("🔁 Планировщик обновлений работает")
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(update_all_packages, 'interval', hours=24, next_run_time=datetime.now()) # Обновлять всё каждые 24 часа
+    scheduler.start()
+    print("🔁 Планировщик обновлений работает")
     
     dp = await init_dispatcher()
 
