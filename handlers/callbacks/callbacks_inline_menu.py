@@ -6,6 +6,8 @@ from aiogram.types import PreCheckoutQuery, Message
 from database.models.esim_global import DataBase_EsimPackageGlobal
 from database.models.esim_local import DataBase_LocalTariff
 from database.models.esim_regional import DataBase_RegionalTariff
+from database.services.esim_service_order import create_esim_order
+from database.services.user_service import get_or_create_user_db
 from handlers.keyboards import buttons_menu
 from database.functions import esim_lists
 from handlers.menu import inline_menu, invoice_payment_menu
@@ -112,6 +114,21 @@ async def selected_plan_region(callback: types.CallbackQuery, user_language: str
     await inline_menu.inline_menu_regional_esim_tariff(callback, user_language)
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
+#@router.callback_query(F.data.startswith('buy_esim_regional_selected_region_'))
+async def process_buy_esim_regional(callback: CallbackQuery, user_language: str):
+
+    plan_id = int(callback.data.split("_")[-1])
+
+    # Получаем тариф по ID
+    plan = await DataBase_RegionalTariff.get_or_none(id=plan_id)
+    if not plan:
+        await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
+        return
+
+    await invoice_payment_menu.send_payment_invoice(callback, plan, tariff_type="regional")
+
+# ТЕСТ ТЕСТ ТЕСТ ТЕСТ ТЕСТ
+# Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
 @router.callback_query(F.data.startswith('buy_esim_regional_selected_region_'))
 async def process_buy_esim_regional(callback: CallbackQuery, user_language: str):
 
@@ -123,8 +140,22 @@ async def process_buy_esim_regional(callback: CallbackQuery, user_language: str)
         await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
 
-    # Отправляем инвойс
-    await invoice_payment_menu.send_payment_invoice(callback, plan)
+    user, _ = await get_or_create_user_db(callback.from_user)
+
+    try:
+        order = await create_esim_order(user, package_code=plan.package_code, price= plan.price)
+
+        await callback.message.answer(
+            f"✅ *Тестовая eSIM выдана без оплаты!*\n\n"
+            f"📦 Тариф: {plan.gb}ГБ на {plan.days} дней\n"
+            f"📱 ICCID: {order.iccid}\n"
+            f"🔗 QR-код для установки:\n{order.qr_code_url}",
+            parse_mode="Markdown"
+        )
+    except Exception as e:
+        print(f"[ERROR] Ошибка при заказе eSIM: {e}")
+        await callback.message.answer("❌ Произошла ошибка при заказе eSIM. Обратитесь в поддержку.")
+    return
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM
@@ -172,19 +203,17 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
     await callback.answer()
 
 
-# Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
+# Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная страна -> Все тарифы по стране -> Клик по конкретному тарифу -> Купить
 @router.callback_query(F.data.startswith('buy_esim_selected_country_plan_'))
-async def process_buy_esim_local(callback: CallbackQuery):
-
+async def process_buy_esim_local(callback: CallbackQuery, user_language: str):
     plan_id = int(callback.data.split("_")[-1])
 
-    # Получаем тариф по ID
     plan = await DataBase_LocalTariff.get_or_none(id=plan_id)
     if not plan:
-        await callback.message.answer("⚠️ Ошибка: тариф не найден.")
+        await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
-    
-    await invoice_payment_menu.send_payment_invoice(callback, plan)
+
+    await invoice_payment_menu.send_payment_invoice(callback, plan, tariff_type="local")
 
 # Настройки: Язык / Language
 @router.callback_query(F.data == "change_language_inline_menu")
@@ -262,23 +291,47 @@ async def process_pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
 
 @router.message(F.successful_payment)
 async def successful_payment(message: Message):
-    amount = message.successful_payment.total_amount / 100  # Сумма в рублях
-    invoice_payload = message.successful_payment.invoice_payload  # ID тарифа (payload)
+    amount = message.successful_payment.total_amount / 100
+    invoice_payload = message.successful_payment.invoice_payload
 
-    # Извлекаем информацию о тарифе
-    plan_id = int(invoice_payload.split("_")[-1])  # Извлекаем ID тарифа из payload
-    plan = await DataBase_EsimPackageGlobal.get_or_none(id=plan_id)
+    # Попытка извлечь тип и ID из payload
+    try:
+        tariff_type, tariff_id = invoice_payload.split("_")
+        tariff_id = int(tariff_id)
+    except Exception:
+        await message.answer("❌ Ошибка: неверный формат данных оплаты.")
+        return
 
-    if plan:
+    # Выбираем нужную таблицу по типу тарифа
+    plan = None
+
+    if tariff_type == "regional":
+        plan = await DataBase_RegionalTariff.get_or_none(id=tariff_id)
+    elif tariff_type == "local":
+        plan = await DataBase_LocalTariff.get_or_none(id=tariff_id)
+    else:
+        await message.answer(f"❌ Ошибка: неизвестный тип тарифа — {tariff_type}.")
+        return
+
+    if not plan:
+        await message.answer("❌ Ошибка: Тариф не найден.")
+        return
+
+    user, _ = await get_or_create_user_db(message.from_user)
+
+    try:
+        order = await create_esim_order(user, package_code=plan.package_code)
+
         await message.answer(
-            f"✅ Оплата прошла!\n"
-            f"Тариф: {plan.name}\n"
-            f"Сумма: {amount} {message.successful_payment.currency}\n"
-            "Тариф активирован! Все необходимые данные для активации eSIM отправлены на ваш телефон."
+            f"✅ Оплата прошла и eSIM выдана!\n\n"
+            f"📦 Тариф: {plan.gb}ГБ на {plan.days} дней\n"
+            f"💳 Сумма: {amount} {message.successful_payment.currency}\n"
+            f"📱 ICCID: {order.iccid}\n"
+            f"🔗 QR-код для установки:\n{order.qr_code_url}"
         )
 
-        # Дополнительно: выдать eSIM или пополнить баланс пользователя
-        # Ваш код для активации eSIM и пополнения баланса
-
-    else:
-        await message.answer("❌ Ошибка: Тариф не найден.")
+    except Exception as e:
+        await message.answer(
+            f"❌ Оплата прошла, но произошла ошибка при оформлении eSIM: {e}\n"
+            f"💰 Средства зачислены. Обратитесь в поддержку."
+        )
