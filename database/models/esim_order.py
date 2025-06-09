@@ -2,14 +2,14 @@ from tortoise import fields, models
 
 
 class EsimOrder(models.Model):
-    order_no = fields.CharField(max_length=32, pk=True)  # Уникальный ID заказа от API
+    order_no = fields.CharField(max_length=32, pk=True)
     user = fields.ForeignKeyField("models.DataBase_User", related_name="orders")
 
     transaction_id = fields.CharField(max_length=64, null=True)
-    package_code = fields.CharField(max_length=64)
+    slug = fields.CharField(max_length=20)
 
-    iccid = fields.CharField(max_length=32)
-    imsi = fields.CharField(max_length=32)
+    iccid = fields.CharField(max_length=32, null=True)  # nullable
+    imsi = fields.CharField(max_length=32, null=True)   # nullable
     ac = fields.TextField()
     qr_code_url = fields.TextField()
 
@@ -18,9 +18,8 @@ class EsimOrder(models.Model):
 
     expired_time = fields.DatetimeField()
     total_volume = fields.BigIntField()
-    order_usage = fields.BigIntField()
-
-    duration_unit = fields.CharField(max_length=10)
+    order_usage = fields.BigIntField(null=True)  # nullable
+    duration_unit = fields.CharField(max_length=10, null=True)  # nullable
 
     created_at = fields.DatetimeField(auto_now_add=True)
 

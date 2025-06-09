@@ -12,20 +12,21 @@ def generate_signature(body: dict, timestamp: str) -> str:
     return hashlib.sha256(raw.encode('utf-8')).hexdigest()
 
 
-async def order_esim(package_code: str, price: float, count: int = 1) -> dict:
+async def order_esim(slug: str, price: float, count: int = 1) -> dict:
     url = f"{ESIM.HOST_API_URL}/api/v1/open/esim/order"
     timestamp = str(int(time.time() * 1000))
 
-    total_amount = price * count
+    price_api = int(price * 10000)
+    total_amount = price_api * count
 
     body = {
         "transactionId": str(uuid.uuid4()),
         "amount": total_amount,
         "packageInfoList": [
             {
-                "packageCode": package_code,
+                "packageCode": slug,
                 "count": count,
-                "price": total_amount
+                "price": price_api
             }
         ]
     }

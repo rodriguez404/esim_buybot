@@ -67,7 +67,7 @@ async def update_esim_packages_regional():
         # Создание тарифа
         tariff_obj = await DataBase_RegionalTariff.create(
             region=region_obj,
-            package_code=package_code,
+            slug=slug,
             gb=gb,
             days=days,
             price=price

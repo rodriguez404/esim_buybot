@@ -17,7 +17,7 @@ from loader import bot, router
 
 from localization.localization import get_text
 from database.functions.update_user_language_in_db import update_user_language_in_db
-
+from microservices.format_esim_success_message import format_test_esim_issued
 
 from redis_folder.functions.get_cache_json import get_cache_json
 from redis_folder.redis_client import get_redis
@@ -131,31 +131,21 @@ async def process_buy_esim_regional(callback: CallbackQuery, user_language: str)
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу -> Купить
 @router.callback_query(F.data.startswith('buy_esim_regional_selected_region_'))
 async def process_buy_esim_regional(callback: CallbackQuery, user_language: str):
-
     plan_id = int(callback.data.split("_")[-1])
 
-    # Получаем тариф по ID
     plan = await DataBase_RegionalTariff.get_or_none(id=plan_id)
     if not plan:
         await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
-
     user, _ = await get_or_create_user_db(callback.from_user)
 
     try:
-        order = await create_esim_order(user, package_code=plan.package_code, price= plan.price)
+        order = await create_esim_order(user, slug=plan.slug, price=plan.price)
+        await callback.message.answer(format_test_esim_issued(user_language, plan, order), parse_mode="Markdown")
 
-        await callback.message.answer(
-            f"✅ *Тестовая eSIM выдана без оплаты!*\n\n"
-            f"📦 Тариф: {plan.gb}ГБ на {plan.days} дней\n"
-            f"📱 ICCID: {order.iccid}\n"
-            f"🔗 QR-код для установки:\n{order.qr_code_url}",
-            parse_mode="Markdown"
-        )
     except Exception as e:
         print(f"[ERROR] Ошибка при заказе eSIM: {e}")
-        await callback.message.answer("❌ Произошла ошибка при заказе eSIM. Обратитесь в поддержку.")
-    return
+        await callback.message.answer(get_text(user_language, "error.order_esim"))
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM
@@ -204,7 +194,7 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная страна -> Все тарифы по стране -> Клик по конкретному тарифу -> Купить
-@router.callback_query(F.data.startswith('buy_esim_selected_country_plan_'))
+#@router.callback_query(F.data.startswith('buy_esim_selected_country_plan_'))
 async def process_buy_esim_local(callback: CallbackQuery, user_language: str):
     plan_id = int(callback.data.split("_")[-1])
 
@@ -214,6 +204,27 @@ async def process_buy_esim_local(callback: CallbackQuery, user_language: str):
         return
 
     await invoice_payment_menu.send_payment_invoice(callback, plan, tariff_type="local")
+
+
+# Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная страна -> Все тарифы по стране -> Клик по конкретному тарифу -> Купить
+#ТЕСТ ТЕСТ ТЕСТ ТЕСТ ТЕСТ
+@router.callback_query(F.data.startswith('buy_esim_selected_country_plan_'))
+async def process_buy_esim_local(callback: CallbackQuery, user_language: str):
+    plan_id = int(callback.data.split("_")[-1])
+
+    plan = await DataBase_LocalTariff.get_or_none(id=plan_id)
+    if not plan:
+        await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
+        return
+    user, _ = await get_or_create_user_db(callback.from_user)
+
+    try:
+        order = await create_esim_order(user, slug=plan.slug, price=plan.price)
+        await callback.message.answer(format_test_esim_issued(user_language, plan, order), parse_mode="Markdown")
+
+    except Exception as e:
+        print(f"[ERROR] Ошибка при заказе eSIM: {e}")
+        await callback.message.answer(get_text(user_language, "error.order_esim"))
 
 # Настройки: Язык / Language
 @router.callback_query(F.data == "change_language_inline_menu")
