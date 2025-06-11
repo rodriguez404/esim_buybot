@@ -40,6 +40,7 @@ async def update_esim_packages_regional():
     for package in package_list:
         slug = package.get("slug")
         price = package.get("price", 0) / 10000
+        package_code = package.get("packageCode", "")
 
         if not slug:
             print(f"⚠️ Пропущено: нет slug в пакете: {package.get('name')}")

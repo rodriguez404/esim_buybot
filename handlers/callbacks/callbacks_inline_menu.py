@@ -6,7 +6,7 @@ from aiogram.types import PreCheckoutQuery, Message
 from database.models.esim_global import DataBase_EsimPackageGlobal
 from database.models.esim_local import DataBase_LocalTariff
 from database.models.esim_regional import DataBase_RegionalTariff
-from database.services.esim_service_order import create_esim_order, esim_profile_by_iccid
+from database.services.esim_service_order import create_esim_order
 from database.services.user_service import get_or_create_user_db
 from handlers.keyboards import buttons_menu
 from database.functions import esim_lists
@@ -219,8 +219,7 @@ async def process_buy_esim_local(callback: CallbackQuery, user_language: str):
     user, _ = await get_or_create_user_db(callback.from_user)
 
     try:
-        #order = await create_esim_order(user, slug=plan.slug, price=plan.price)
-        order = await esim_profile_by_iccid(user, "8910300000019912449")
+        order = await create_esim_order(user, slug=plan.slug, price=plan.price)
         await callback.message.answer(format_test_esim_issued(user_language, plan, order), parse_mode="Markdown")
 
     except Exception as e:
