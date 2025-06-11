@@ -15,7 +15,7 @@ class DataBase_Region(models.Model):
 # Таблица тарифов для регионов: | Объем ГБ | Количество дней | Цена |
 class DataBase_RegionalTariff(models.Model):
     id = fields.IntField(pk=True)
-    slug = fields.CharField(max_length=20, unique=True)
+    package_code = fields.CharField(max_length=20)  # Новое поле для packageCode
     region = fields.ForeignKeyField("models.DataBase_Region", related_name="tariffs")
     gb = fields.FloatField()
     days = fields.IntField()

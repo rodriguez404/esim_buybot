@@ -72,7 +72,7 @@ async def update_esim_packages_local():
 
             await DataBase_LocalTariff.create(
                 country=country_obj,
-                slug=slug,
+                package_code=package_code,
                 gb=gb,
                 days=days,
                 price=price

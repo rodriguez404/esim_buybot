@@ -43,8 +43,6 @@
 
     "button.keyboards.buy_esim.global_esim": "{gb} GB for {days} days — {price}$",
 
-    "text.order.success_message": "✅ *Test eSIM issued without payment!*\n\n📦 Plan: {gb}GB for {days} days\n📱 ICCID: {iccid}\n🔗 QR code for installation:\n{qr_code}",
-
 
     "text.inline_menu.my_esim.text_menu": "*My eSIMs*\nNone. Would you like to buy an eSIM?",
 
@@ -78,8 +76,6 @@
     "error.tariff_not_found": "⚠️ Error: tariff not found.",
     "error.countries_not_found": "⚠️ Error: countries not found.",
     "error.change_language": "⚠️ Error: Couldn't update the language.",
-
-    "error.order_esim": "❌ An error occurred while ordering the eSIM. Please contact support.",
 
 
     "countries": {
