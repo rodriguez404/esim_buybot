@@ -57,6 +57,8 @@ async def main():
     # scheduler.add_job(update_all_packages, 'interval', hours=24) # Обновлять всё каждые 24 часа
     # scheduler.start()
     # print("🔁 Планировщик обновлений работает")
+
+    await update_all_packages()
     
     dp = await init_dispatcher()
 

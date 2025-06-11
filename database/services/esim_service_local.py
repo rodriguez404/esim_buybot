@@ -4,6 +4,7 @@ from tortoise import Tortoise
 from database.models.esim_local import DataBase_LocalCountry, DataBase_LocalTariff
 from api.esim_access import fetch
 from config import ESIM
+import logging
 
 
 def parse_slug(slug: str):
@@ -29,9 +30,10 @@ async def update_esim_packages_local():
     for country_code, country_name in COUNTRY_CODE_MAP.items():
         try:
             data = await fetch(ESIM.API_PACKAGELIST_URL, payload={'locationCode': country_code})
+            logging.debug("data:", data)
             package_list = data.get('obj', {}).get('packageList', [])
         except Exception as e:
-            print(f"❌ Ошибка при получении данных по {country_code}: {e}")
+            logging.debug(f"❌ Ошибка при получении данных по {country_code}: {e}")
             continue
 
         local_packages = [
