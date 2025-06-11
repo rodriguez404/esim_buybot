@@ -54,7 +54,7 @@ async def main():
 
     # Планировщик - для автоматического обновления БД
     scheduler = AsyncIOScheduler()
-    #scheduler.add_job(update_all_packages, 'interval', hours=24, next_run_time=datetime.now()) # Обновлять всё каждые 24 часа
+    scheduler.add_job(update_all_packages, 'interval', hours=24, next_run_time=datetime.now()) # Обновлять всё каждые 24 часа
     scheduler.start()
     print("🔁 Планировщик обновлений работает")
     

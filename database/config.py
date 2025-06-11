@@ -6,7 +6,7 @@ DB_CONFIG = {
     },
     "apps": {
         "models": {
-            "models": ["database.models.user", "database.models.esim_global", "database.models.esim_regional", "database.models.esim_local", "aerich.models"],  # Подключаем модели
+            "models": ["database.models.user", "database.models.esim_global", "database.models.esim_regional", "database.models.esim_local", "database.models.esim_order", "aerich.models"],  # Подключаем модели
             "default_connection": "default",
         }
     }
