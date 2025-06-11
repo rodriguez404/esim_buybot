@@ -25,6 +25,7 @@ from database.services.user_service import get_or_create_user_db
 # Обновление бд
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from microservices.update_all_packages import update_all_packages
+from database.services.admin_tariff_groups_service import update_admin_tariff_groups
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -60,6 +61,7 @@ async def main():
     dp = await init_dispatcher()
 
     await set_static_cache()
+    # await update_admin_tariff_groups() # для дебаг-старта, в продакшне не нужно
 
     await set_commands(bot) # Устанавливаем команды для меню слева
     try:

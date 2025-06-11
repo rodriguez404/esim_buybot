@@ -6,7 +6,7 @@ from aiogram.types import PreCheckoutQuery, Message
 from database.models.esim_global import DataBase_EsimPackageGlobal
 from database.models.esim_local import DataBase_LocalTariff
 from database.models.esim_regional import DataBase_RegionalTariff
-from handlers.keyboards import buttons_menu
+from handlers.keyboards import main_menu_kb, paginated_buttons_kb
 from database.functions import esim_lists
 from handlers.menu import inline_menu, invoice_payment_menu
 from handlers.menu.reply_menu import show_reply_menu
@@ -68,7 +68,7 @@ async def callback_global_page(callback: types.CallbackQuery, user_language: str
 
     page = int(callback.data.split("_")[-1])
     plans = await get_cache_json(key="esim_global") or await esim_lists.esim_global()
-    kb = buttons_menu.buttons_global_esim(plans, user_language, page=page)
+    kb = paginated_buttons_kb.buttons_global_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -79,7 +79,7 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
 
     page = int(callback.data.split("_")[-1])
     plans = await get_cache_json(key=f"esim_regional_regions_{user_language}") or await esim_lists.esim_regional(user_language)
-    kb = buttons_menu.buttons_region_esim(plans, user_language, page=page)
+    kb = paginated_buttons_kb.buttons_region_esim(plans, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -99,7 +99,7 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
     page = int(callback.data.split("_")[-1])
     region_id = int(callback.data.split("_")[-2])
     plans = await esim_lists.esim_regional_selected_region_plans(region_id)
-    kb = buttons_menu.buttons_region_esim_selected(plans, region_id, user_language, page=page)
+    kb = paginated_buttons_kb.buttons_region_esim_selected(plans, region_id, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -133,13 +133,14 @@ async def local_countries_esim_callback(callback: CallbackQuery, user_language: 
 
     await inline_menu.inline_menu_esim_local_countries(callback, user_language)
 
+
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Страны (Переключение между кнопками "назад" и "далее")
 @router.callback_query(lambda c: c.data.startswith("countries_list_page_"))
 async def callback_local_countries_list_page(callback: types.CallbackQuery, user_language: str):
 
     page = int(callback.data.split("_")[-1])
     countries_list = await get_cache_json(key=f"esim_local_countries_{user_language}") or await esim_lists.esim_local_countries(user_language)
-    kb = buttons_menu.buttons_local_countries_esim(countries_list, user_language, page=page)
+    kb = paginated_buttons_kb.buttons_local_countries_esim(countries_list, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -166,7 +167,7 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
     page = int(callback.data.split("_")[-1])
     country_id = int(callback.data.split("_")[-2])
     plans = await esim_lists.esim_local_selected_country_plans(country_id)
-    kb = buttons_menu.buttons_local_esim_selected(plans, country_id, user_language, page=page)
+    kb = paginated_buttons_kb.buttons_local_esim_selected(plans, country_id, user_language, page=page)
 
     await callback.message.edit_reply_markup(reply_markup=kb)
     await callback.answer()
@@ -185,6 +186,7 @@ async def process_buy_esim_local(callback: CallbackQuery):
         return
     
     await invoice_payment_menu.send_payment_invoice(callback, plan)
+
 
 # Настройки: Язык / Language
 @router.callback_query(F.data == "change_language_inline_menu")
@@ -224,35 +226,16 @@ async def settings_change_language(callback: CallbackQuery, user_language: str, 
         await callback.answer(get_text(user_language, "error.change_language"), show_alert=False)
 
 
-# ТЕСТОВЫЙ МУСОР ДЛЯ ПЛАТЕЖКИ(НЕ МУСОР, Я ПЕРЕДУМАЛ) 
-# - МУСОР, ПЕРЕДЕЛАЕШЬ @rodriguez404 to 4EJlOBEK06
-# @router.callback_query()
-# async def handle_callback(callback: CallbackQuery, user_language: str):
-#     data = callback.data
-#     if data == "inline_menu_settings_callback":
-#         # await callback.message.delete()
-#         await inline_menu.inline_menu_settings_callback(callback, user_language)
-#     elif data == "inline_menu_global_esim":
-#         # await callback.message.delete()
-#         # await inline_menu.inline_menu_buy_eSIM_ru(callback)
-#         kb = await inline_menu.inline_menu_buy_eSIM_ru(callback)
-#         await callback.message.edit_text("Test text", reply_markup=kb)
-#     elif data == "btn1":
-#         # await callback.message.delete()
-#         await inline_menu.inline_menu_buy_eSIM_ru(callback)
-
-#     await callback.answer()
-
-
-@router.callback_query(F.data == "inline_menu_buy_eSIM_callback")
+@router.callback_query(F.data == "inline_menu_buy_esim_callback")
 async def back_to_menu(callback: CallbackQuery, user_language: str):
-    await inline_menu.inline_menu_buy_eSIM_callback(callback, user_language)
 
-# "Популярные направления", пока не готово
-@router.callback_query(F.data == "btn1")
-async def handle_callback(callback: CallbackQuery):
-    await inline_menu.inline_menu_buy_eSIM_ru(callback)
+    kb = main_menu_kb.menu_buy_esim_kb(user_language)
 
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.buy_esim.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
 
 
 @router.pre_checkout_query()
@@ -282,3 +265,57 @@ async def successful_payment(message: Message):
 
     else:
         await message.answer("❌ Ошибка: Тариф не найден.")
+
+
+# Админка – редактировать группы тарифов - список групп
+@router.callback_query(F.data == "admin_edit_tariff_groups")
+async def admin_edit_tariff_groups_menu(callback: types.CallbackQuery, user_language: str):
+
+    data = await esim_lists.esim_admin_tariff_groups()
+    kb = paginated_buttons_kb.admin_tariff_groups_kb(data, user_language)
+
+    await callback.message.edit_text(
+        "Проверка",
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+
+# Админка – редактировать группы тарифов - список групп - назад и далее
+@router.callback_query(lambda c: c.data.startswith("admin_tariff_groups_page_"))
+async def admin_edit_tariff_groups_menu(callback: types.CallbackQuery, user_language: str):
+
+    page = int(callback.data.split("_")[-1])
+    data = await esim_lists.esim_admin_tariff_groups()
+    kb = paginated_buttons_kb.admin_tariff_groups_kb(data, user_language, page=page)
+
+    await callback.message.edit_reply_markup(reply_markup=kb)
+
+
+# Админка – редактировать группы тарифов - список групп - конкретная группа
+@router.callback_query(lambda c: c.data.startswith("asd"))
+async def admin_edit_tariff_groups_menu(callback: types.CallbackQuery, user_language: str):
+
+    data = await esim_lists.esim_admin_tariff_groups()
+    kb = paginated_buttons_kb.admin_tariff_groups_kb(data, user_language)
+
+    await callback.message.edit_text(
+        "Проверка",
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+
+# Админка - меню (коллбек)
+@router.callback_query(F.data == "menu_admin_callback")
+async def menu_admin(callback: CallbackQuery, user_language: str):
+
+    kb = main_menu_kb.menu_admin_kb(user_language)
+    
+    await callback.message.edit_text(
+        get_text(user_language, "text.inline_menu.settings.text_menu"),
+        reply_markup=kb,
+        parse_mode="Markdown"
+    )
+
+    

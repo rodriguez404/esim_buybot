@@ -15,7 +15,6 @@ class DATABASE:
 class REDIS:
     HOST_URL = os.getenv("redis_host_url")
     PORT = os.getenv("redis_port")
-    LOCAL_PASSWORD = os.getenv("redis_local_password")
 
 class ESIM:
     ACCESS_CODE = os.getenv("esim_access_code")

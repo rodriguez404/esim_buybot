@@ -1,7 +1,9 @@
+from typing import Any
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+from handlers.keyboards import format_button
 from localization.localization import get_text
-from microservices.format_number_UI import format_number
+
 
 # Универсальная функция для генерации инлайн-клавиатуры с пагинацией
 def generate_paginated_kb(
@@ -11,7 +13,7 @@ def generate_paginated_kb(
     page: int = 0,
     buttons_per_page: int = 8,
     columns: int = 1,
-    menu_callback: str = "inline_menu_buy_eSIM_callback",
+    menu_callback: str = "inline_menu_buy_esim_callback",
     button_formatter=None,
 ) -> InlineKeyboardMarkup:
     """
@@ -68,68 +70,28 @@ def generate_paginated_kb(
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
-# Форматирование кнопки страны
-def format_country_button(item, user_language):
-    country_id, country_name, country_flag = item
-    return InlineKeyboardButton(text=f"{country_flag}{country_name}",callback_data=f"country_id_{country_id}")
-
-
-# Форматирование кнопки региона
-def format_region_button(item, user_language):
-    region_id, region_name = item
-    return InlineKeyboardButton(text=f"{region_name}",callback_data=f"region_id_{region_id}")
-
-
-# Форматирование кнопки тарифа (под страны)
-def format_country_plan_button(country_id):
-    def formatter(item, user_language):
-        plan_id, gb, days, price = item
-        text = get_text(user_language, "button.keyboards.buy_esim.local_esim.all_tariffs.current_tariff").format(gb=format_number(gb), days=days, price=format_number(price))
-        callback_data = f"selected_country_id_plan_{country_id}_{plan_id}"
-        return InlineKeyboardButton(text=text, callback_data=callback_data)
-    return formatter
-
-
-# Форматирование кнопки тарифа (под регионы)
-def format_region_plan_button(region_id):
-    def formatter(item, user_language):
-        plan_id, gb, days, price = item
-        text = get_text(user_language, "button.keyboards.buy_esim.local_esim.all_tariffs.current_tariff").format(gb=format_number(gb), days=days, price=format_number(price))
-        callback_data = f"regional_selected_region_plan_{region_id}_{plan_id}"
-        return InlineKeyboardButton(text=text, callback_data=callback_data)
-    return formatter
-
-
-# Форматирование кнопки тарифа (под глобалы)
-def format_global_plan_button(item, user_language):
-    plan_id, gb, days, price = item
-    text = get_text(user_language, "button.keyboards.buy_esim.global_esim").format(gb=format_number(gb), days=days, price=format_number(price))
-    callback_data = f"global_plan_{plan_id}"
-    return InlineKeyboardButton(text=text, callback_data=callback_data)
-
-
 # Местные eSIM: Купить eSIM -> Местные eSIM (список стран)
-def buttons_local_countries_esim(countries_list, user_language: str, page=0):
+def buttons_local_countries_esim(countries_list, user_language: str, page=0, buttons_per_page: int = 16):
     return generate_paginated_kb(
         data=countries_list,
         user_language=user_language,
         page=page,
-        buttons_per_page=16,
+        buttons_per_page=buttons_per_page,
         columns=2,
-        button_formatter=format_country_button,
+        button_formatter=format_button.format_country_button,
         pagination_prefix="countries_list_page"
     )
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM (список стран) -> Тарифы конкретной страны
-def buttons_local_esim_selected(plans: list[list[int]], country_id: int, user_language: str, page: int = 0) -> InlineKeyboardMarkup:
+def buttons_local_esim_selected(plans: list[list[int]], country_id: int, user_language: str, page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
     return generate_paginated_kb(
         data=plans,
         user_language=user_language,
         page=page,
-        buttons_per_page=8,
+        buttons_per_page=buttons_per_page,
         columns=1,
-        button_formatter=format_country_plan_button(country_id),
+        button_formatter=format_button.format_country_plan_button(country_id),
         pagination_prefix=f"selected_country_plans_page_{country_id}",
         menu_callback="local_esim_inline_menu"
     )
@@ -141,9 +103,9 @@ def buttons_region_esim(plans: list[list[int]], user_language: str, page: int = 
         data=plans,
         user_language=user_language,
         page=page,
-        buttons_per_page=8,
+        buttons_per_page=buttons_per_page,
         columns=1,
-        button_formatter=format_region_button,
+        button_formatter=format_button.format_region_button,
         pagination_prefix="regional_page",
     )
 
@@ -154,9 +116,9 @@ def buttons_region_esim_selected(plans: list[list[int]], region_id: int, user_la
         data=plans,
         user_language=user_language,
         page=page,
-        buttons_per_page=8,
+        buttons_per_page=buttons_per_page,
         columns=1,
-        button_formatter=format_region_plan_button(region_id),
+        button_formatter=format_button.format_region_plan_button(region_id),
         pagination_prefix=f"regional_region_page_{region_id}",
         menu_callback="region_esim_inline_menu"
     )
@@ -168,8 +130,22 @@ def buttons_global_esim(plans: list[list[int]], user_language: str, page: int = 
         data=plans,
         user_language=user_language,
         page=page,
-        buttons_per_page=8,
+        buttons_per_page=buttons_per_page,
         columns=1,
-        button_formatter=format_global_plan_button,
+        button_formatter=format_button.format_global_plan_button,
         pagination_prefix=f"global_page",
+    )
+
+
+# Админка: Редактировать группы тарифов -> показать все группы
+def admin_tariff_groups_kb(data: list, user_language: str, page: int = 0, buttons_per_page: int = 8) -> InlineKeyboardMarkup:
+    return generate_paginated_kb(
+        data=data,
+        user_language=user_language,
+        page=page,
+        buttons_per_page=buttons_per_page,
+        columns=1,
+        button_formatter=format_button.format_admin_tariff_group_button,
+        pagination_prefix="admin_tariff_groups_page",
+        menu_callback="menu_admin_callback"
     )

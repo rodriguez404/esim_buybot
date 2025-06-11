@@ -1,4 +1,5 @@
 
+from database.models.admin_tariff_groups import TariffGroup
 from database.models.esim_local import DataBase_LocalCountry, DataBase_LocalTariff
 from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
 from database.models.esim_regional import DataBase_Region, DataBase_RegionalCountry, DataBase_RegionalTariff
@@ -109,3 +110,30 @@ async def esim_global_countries(plan_id, user_language):
     ]
 
     return ", ".join(countries_text_parts)
+
+
+# Админка: все группы тарифов
+async def esim_admin_tariff_groups():
+    tariff_groups = []
+
+    groups = await TariffGroup.all()
+
+    for group in groups:
+        tariff_groups.append([group.id, group.countries, group.tariff_prices, group.name])
+
+    return tariff_groups
+
+
+# Админка: отдельная группа тарифов
+# async def esim_admin_tariff_group_selected(group_id):
+#     tariff_group = []
+
+#     group = await TariffGroup.get_or_none(group_id=group_id)
+#     if not group:
+#         await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
+#         return
+
+#     for group in groups:
+#         tariff_group.append([group.id, group.countries, group.tariff_prices, group.name])
+
+#     return tariff_groups
