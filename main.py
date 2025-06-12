@@ -7,6 +7,7 @@ from aiogram import Bot, types
 from aiogram.types import BotCommand
 from aiogram.filters.command import Command
 
+from database.services.esim_service_local import update_esim_packages_local
 from loader import bot, init_dispatcher, router
 from redis_folder.functions.set_static_cache import set_static_cache
 from redis_folder.redis_client import get_redis
@@ -58,7 +59,7 @@ async def main():
     # scheduler.start()
     # print("🔁 Планировщик обновлений работает")
 
-    await update_all_packages()
+    await update_esim_packages_local()
     
     dp = await init_dispatcher()
 
