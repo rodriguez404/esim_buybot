@@ -25,5 +25,5 @@ class UserRightsMiddleware(BaseMiddleware):
             data["user_rights"] = "admin"
 
         duration = (time.time() - starting_global_time) * 1000  # в мс
-        logging.debug(f"[DEBUG]: [UserRightMiddleware] work time: {duration:.2f} ms")
+        logging.debug(f"[UserRightMiddleware] work time: {duration:.2f} ms")
         return await handler(event, data)

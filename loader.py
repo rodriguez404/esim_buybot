@@ -6,6 +6,8 @@ from redis_folder.redis_client import AsyncDummyRedis, init_redis_connection
 from middleware.I18n_middleware import I18nMiddleware
 from middleware.user_rights_middleware import UserRightsMiddleware
 
+import logging
+
 bot = Bot(token=BOT_TOKEN)
 router = Router()
 
@@ -29,11 +31,11 @@ async def init_dispatcher():
     # если вернул редис и он не является заглушкой
     if redis and not isinstance(redis, AsyncDummyRedis):
         storage = RedisStorage(redis=redis)
-        print("✅ Используется RedisStorage")
+        logging.info("✅ Используется RedisStorage")
     # иначе - локальное хранилище
     else:
         storage = MemoryStorage()
-        print("🧠 Используется MemoryStorage")
+        logging.info("🧠 Используется MemoryStorage")
 
     dp = Dispatcher(storage=storage)
     dp.include_router(router)

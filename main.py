@@ -9,8 +9,6 @@ from aiogram.filters.command import Command
 
 from database.services.esim_service_local import update_esim_packages_local
 from loader import bot, init_dispatcher, router
-from redis_folder.functions.set_static_cache import set_static_cache
-from redis_folder.redis_client import get_redis
 
 # Необходимы для корректной работы, несмотря на то, что визуально в мейне не используются
 from handlers.menu import reply_menu, inline_menu
@@ -23,10 +21,15 @@ from localization.localization import load_locales
 from database import init_db
 from database.models.user import DataBase_User  # Правильный импорт модели User
 from database.services.user_service import get_or_create_user_db
-# Обновление бд
+# Обновление бд через планировщик
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from microservices.update_all_packages import update_all_packages
 from database.services.admin_tariff_groups_service import update_admin_tariff_groups
+from datetime import datetime
+# Redis
+from redis_folder.redis_mock_class import AsyncDummyRedis
+from redis_folder.functions.set_static_cache import set_static_cache
+from redis_folder.redis_client import get_redis
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -55,15 +58,15 @@ async def main():
 
     # Планировщик - для автоматического обновления БД
     # scheduler = AsyncIOScheduler()
-    # scheduler.add_job(update_all_packages, 'interval', hours=24) # Обновлять всё каждые 24 часа
+    # scheduler.add_job(update_all_packages, 'interval', hours=24, next_run_time=datetime.now()) # Обновлять всё каждые 24 часа
     # scheduler.start()
-    # print("🔁 Планировщик обновлений работает")
-
-    await update_esim_packages_local()
+    # logging.info("🔁 Планировщик обновлений работает")
     
     dp = await init_dispatcher()
 
-    await set_static_cache()
+    if not isinstance(get_redis(), AsyncDummyRedis):
+        await set_static_cache()
+
     # await update_admin_tariff_groups() # для дебаг-старта, в продакшне не нужно
 
     await set_commands(bot) # Устанавливаем команды для меню слева

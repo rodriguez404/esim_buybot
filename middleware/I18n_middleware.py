@@ -34,12 +34,12 @@ class I18nMiddleware(BaseMiddleware):
             data["user_language"] = lang
             
             duration = (time.time() - starting_global_time) * 1000  # в мс
-            logging.debug(f"[DEBUG]: [I18Middleware] work time: {duration:.2f} ms")
+            logging.debug(f"[I18Middleware] work time: {duration:.2f} ms")
             return await handler(event, data)
 
         # Иначе - вернуть дефолт
         data["user_language"] = "en" # стандартный язык
 
         duration = (time.time() - starting_global_time) * 1000  # в мс
-        logging.debug(f"[DEBUG]: [I18Middleware] work time: {duration:.2f} ms")
+        logging.debug(f"[I18Middleware] work time: {duration:.2f} ms")
         return await handler(event, data)

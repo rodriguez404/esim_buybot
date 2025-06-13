@@ -4,6 +4,8 @@ from database.models.esim_regional import DataBase_Region, DataBase_RegionalTari
 from api.esim_access import fetch
 from config import ESIM
 
+import logging
+
 
 def parse_slug(slug: str):
     match = re.match(r"(?P<code>[A-Z]+)-\d+_(?P<gb>[\d.]+)_(?P<days>\d+|Daily)", slug)
@@ -34,12 +36,12 @@ async def update_esim_packages_regional():
         package_code = package.get("packageCode", "")
 
         if not slug:
-            print(f"⚠️ Пропущено: нет slug в пакете: {package.get('name')}")
+            logging.debug(f"⚠️ Пропущено: нет slug в пакете: {package.get('name')}")
             continue
 
         parsed = parse_slug(slug)
         if not parsed:
-            print(f"⚠️ Пропущено: не удалось распарсить slug: {slug}")
+            logging.debug(f"⚠️ Пропущено: не удалось распарсить slug: {slug}")
             continue
 
         code, gb, days = parsed

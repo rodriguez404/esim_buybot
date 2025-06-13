@@ -8,6 +8,8 @@ from api.esim_access import fetch
 
 from config import ESIM
 
+import logging
+
 async def update_esim_packages_global():
     await DataBase_EsimPackageGlobal.all().delete()
     await DataBase_EsimCountryGlobal.all().delete()
@@ -25,7 +27,7 @@ async def update_esim_packages_global():
             gb = float(re.search(r"(\d+)GB", name).group(1))
             days = int(re.search(r"(\d+)Days", name).group(1))
         except Exception as e:
-            print(f"⚠️ Не удалось распарсить тариф: {name}, ошибка: {e}")
+            logging.debug(f"⚠️ Не удалось распарсить тариф: {name}, ошибка: {e}")
             continue
 
         # Сохраняем только очищенные данные

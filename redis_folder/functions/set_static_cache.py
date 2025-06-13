@@ -23,7 +23,7 @@ async def set_static_cache():
     if isinstance(get_redis(), AsyncDummyRedis):
         return
     
-    print("Обновление Кэша REDIS")
+    logging.info("Обновление Кэша REDIS")
     
     # Для отладки - начало таймера для замера времени записи кэша
     start_total_time = time.time()
@@ -33,7 +33,7 @@ async def set_static_cache():
     await get_redis().set(f"esim_global", json.dumps(await esim_lists.esim_global()))
 
     duration = (time.time() - start_global_time) * 1000  # в мс
-    logging.debug(f"[DEBUG]: [CACHE] Кэш esim_global обновлён за {duration:.2f} мс")
+    logging.debug(f"[CACHE] Кэш esim_global обновлён за {duration:.2f} мс")
 
     # Кэш по всем языкам
     start_local_countries_time = {}
@@ -43,16 +43,16 @@ async def set_static_cache():
         start_local_countries_time[lang] = time.time()
         await get_redis().set(f"esim_local_countries_{lang}", json.dumps(await esim_lists.esim_local_countries(lang)))
         duration = (time.time() - start_local_countries_time[lang]) * 1000  # в мс
-        logging.debug(f"[DEBUG]: [CACHE] Кэш esim_local_countries_{lang} обновлён за {duration:.2f} мс")
+        logging.debug(f": [CACHE] Кэш esim_local_countries_{lang} обновлён за {duration:.2f} мс")
 
         # Региональные eSIM: названия регионов
         start_regional_regions_time[lang] = time.time()
         await get_redis().set(f"esim_regional_regions_{lang}", json.dumps(await esim_lists.esim_regional(lang)))
         duration = (time.time() - start_regional_regions_time[lang]) * 1000  # в мс
-        logging.debug(f"[DEBUG]: [CACHE] Кэш esim_regional_regions_{lang} обновлён за {duration:.2f} мс")
+        logging.debug(f"[CACHE] Кэш esim_regional_regions_{lang} обновлён за {duration:.2f} мс")
 
     duration = (time.time() - start_total_time) * 1000  # в мс
-    logging.debug(f"[DEBUG]: [CACHE] Суммарное время обновления кэша: {duration:.2f} мс")
+    logging.debug(f"[CACHE] Суммарное время обновления кэша: {duration:.2f} мс")
     return
 
 

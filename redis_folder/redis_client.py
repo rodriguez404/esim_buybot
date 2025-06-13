@@ -28,7 +28,7 @@ async def init_redis_connection(host=REDIS.HOST_URL, port=REDIS.PORT):
         logging.warning(f"❌ Redis недоступен, используется заглушка: {err}")
         return AsyncDummyRedis() # Возвращает заглушку, если не удалось подключиться
     except Exception as err:
-        print(f"Ошибка при работе с Redis: {err}")
+        logging.debug(f"Ошибка при работе с Redis: {err}")
         return AsyncDummyRedis()
 
 # Повсеместная функция для обращения к редису

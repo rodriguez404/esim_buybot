@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import logging
 
 # Переменная для хранения локалей
 _locales = {}
@@ -26,7 +27,7 @@ def translate_countries(key: str, lang: str) -> str:
 
     # Проверяем, если страна не найдена, выводим в консоль
     if translation == f"[{key}]":
-        print(f"Не удалось найти перевод для страны: {key} на языке {lang}")
+        logging.debug(f"Не удалось найти перевод для страны: {key} на языке {lang}")
 
     return translation
 
@@ -36,6 +37,6 @@ def translate_regions(key: str, lang: str) -> str:
 
     # Проверяем, если страна не найдена, выводим в консоль
     if translation == f"[{key}]":
-        print(f"Не удалось найти перевод для страны: {key} на языке {lang}")
+        logging.debug(f"Не удалось найти перевод для страны: {key} на языке {lang}")
 
     return translation

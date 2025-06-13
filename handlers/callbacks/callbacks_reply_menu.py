@@ -5,6 +5,8 @@ from loader import router
 from handlers.menu import inline_menu
 from localization.localization import get_text
 
+import logging
+
 # Обработчик для всех кнопок reply меню с учётом языка
 @router.message(~Command(commands=["start", "id"]))
 async def handle_reply_menu_buttons(message: types.Message, user_language: str):
@@ -22,7 +24,7 @@ async def handle_reply_menu_buttons(message: types.Message, user_language: str):
         try:
             await message.delete()
         except Exception as e:
-            print(f"Не удалось удалить сообщение пользователя: {e}")
+            logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
         await action(message, user_language)
     else:
-        print(f"[DEBUG] Нет действия для: {message.text}")
+        logging.debug(f"Ошибка при нажатии: Нет действия для: {message.text}")

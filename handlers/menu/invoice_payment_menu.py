@@ -2,6 +2,7 @@ from aiogram.types import CallbackQuery, LabeledPrice
 from config import PAYMENTS_TOKEN
 from loader import bot
 
+import logging
 
 async def send_payment_invoice(callback: CallbackQuery, plan):
     # Составляем текст для отображения
@@ -21,6 +22,6 @@ async def send_payment_invoice(callback: CallbackQuery, plan):
             prices=prices
         )
     except Exception as e:
-        print(f"❌ Ошибка при send_invoice: {e}")
+        logging.debug(f"❌ Ошибка при send_invoice: {e}")
 
     await callback.answer()  # закрывает "часики"

@@ -16,9 +16,10 @@ from loader import bot, router
 from localization.localization import get_text
 from database.functions.update_user_language_in_db import update_user_language_in_db
 
-
 from redis_folder.functions.get_cache_json import get_cache_json
 from redis_folder.redis_client import get_redis
+
+import logging
 
 @router.callback_query(F.data == "close_inline_menu")
 async def close_menu_callback(callback: CallbackQuery):
@@ -218,7 +219,7 @@ async def settings_change_language(callback: CallbackQuery, user_language: str, 
         try:
             await callback.message.delete()
         except Exception as e:
-            print(f"Не удалось удалить сообщение пользователя: {e}")
+            logging.debug(f"Не удалось удалить сообщение пользователя: {e}")
 
         await show_reply_menu(callback.message, user_language=user_language, user_rights=user_rights)
 

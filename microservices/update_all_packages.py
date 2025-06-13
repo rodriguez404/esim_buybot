@@ -3,22 +3,23 @@ from database.services.esim_service_regional import update_esim_packages_regiona
 from database.services.esim_service_global import update_esim_packages_global
 from redis_folder.functions.set_static_cache import set_static_cache
 
+import logging
 
 async def update_all_packages():
     try:
-        print("🏠 Обновление локальных пакетов...")
+        logging.info("🏠 Обновление локальных пакетов...")
         await update_esim_packages_local()
 
-        print("🌍 Обновление региональных пакетов...")
+        logging.info("🌍 Обновление региональных пакетов...")
         await update_esim_packages_regional()
 
-        print("📦 Обновление глобальных пакетов...")
+        logging.info("📦 Обновление глобальных пакетов...")
         await update_esim_packages_global()
 
 
-        print("🧠 Обновление Redis кэша...")
+        logging.info("🧠 Обновление Redis кэша...")
         await set_static_cache()
 
-        print("✅ Обновление завершено успешно.")
+        logging.info("✅ Обновление завершено успешно.")
     except Exception as e:
-        print(f"❌ Ошибка во время обновления: {e}")
+        logging.debug(f"❌ Ошибка во время обновления: {e}")

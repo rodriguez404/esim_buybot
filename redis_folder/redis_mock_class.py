@@ -1,3 +1,4 @@
+import logging
 # Заглушка, если подключение к Redis не удалось
 class AsyncDummyRedis:
     async def get(self, *args, **kwargs):
@@ -11,6 +12,6 @@ class AsyncDummyRedis:
 
     def __getattr__(self, name):
         async def method(*args, **kwargs):
-            print(f"Redis недоступен: попытка вызвать {name}")
+            logging.debug(f"Redis недоступен: попытка вызвать {name}")
             return None
         return method
