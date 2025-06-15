@@ -23,6 +23,7 @@ from database.models.user import DataBase_User  # Правильный импо�
 from database.services.user_service import get_or_create_user_db
 # Обновление бд через планировщик
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from datetime import datetime
 from microservices.update_all_packages import update_all_packages
 from database.services.admin_tariff_groups_service import update_admin_tariff_groups
 from datetime import datetime

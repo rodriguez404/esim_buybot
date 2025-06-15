@@ -31,7 +31,7 @@ async def process_country(code: str, name: str, sem: asyncio.Semaphore):
             data = await fetch(ESIM.API_PACKAGELIST_URL, payload={'locationCode': code})
             package_list = data.get('obj', {}).get('packageList', [])
         except Exception as e:
-            logging.debug(f"❌ Ошибка при получении данных по {code}: {e}")
+            print(f"❌ Ошибка при получении данных по {code}: {e}")
             return
 
         local_packages = [
@@ -52,7 +52,7 @@ async def process_country(code: str, name: str, sem: asyncio.Semaphore):
             slug = pkg.get("slug")
             price = pkg.get("price", 0) / 10000
             if not slug:
-                logging.debug(f"⚠️ Пропущено: нет slug в пакете: {pkg.get('name')}")
+                print(f"⚠️ Пропущено: нет slug в пакете: {pkg.get('name')}")
                 continue
             parsed = parse_slug(slug)
             if not parsed:
@@ -75,7 +75,7 @@ async def update_esim_packages_local():
     await DataBase_LocalCountry.all().delete()
 
     # Семафор для ограничения одновременных fetch-запросов
-    sem = asyncio.Semaphore(5)
+    sem = asyncio.Semaphore(10)
     tasks = [process_country(code, name, sem) for code, name in COUNTRY_CODE_MAP.items()]
 
     # Запускаем все задачи параллельно с ограничением семафором

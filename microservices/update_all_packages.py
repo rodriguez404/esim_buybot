@@ -13,8 +13,8 @@ async def update_all_packages():
         logging.info("🌍 Обновление региональных пакетов...")
         await update_esim_packages_regional()
 
-        logging.info("📦 Обновление глобальных пакетов...")
-        await update_esim_packages_global()
+        #print("📦 Обновление глобальных пакетов...") Не нужно, будет уничтожено
+        #await update_esim_packages_global()
 
 
         logging.info("🧠 Обновление Redis кэша...")

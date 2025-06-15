@@ -1,3 +1,4 @@
+import re
 import json
 from pathlib import Path
 import logging
@@ -40,3 +41,23 @@ def translate_regions(key: str, lang: str) -> str:
         logging.debug(f"Не удалось найти перевод для страны: {key} на языке {lang}")
 
     return translation
+
+def translate_regions_temp(key: str, lang: str) -> str:
+    # Отделяем базовое название региона и число (если есть)
+    match = re.match(r"^(?P<base>.+?)\s(?P<count>\d+)$", key)
+
+    if match:
+        base = match.group("base")
+        count = match.group("count")
+    else:
+        base = key
+        count = None
+
+    # Переводим только базовое название
+    translated = _locales.get(lang, {}).get("regions", {}).get(base, f"[{base}]")
+
+    if translated == f"[{base}]":
+        print(f"Не удалось найти перевод для региона: {base} на языке {lang}")
+
+    # Добавляем число обратно (если оно было)
+    return f"{translated} {count}" if count else translated
