@@ -57,7 +57,7 @@ def translate_regions_temp(key: str, lang: str) -> str:
     translated = _locales.get(lang, {}).get("regions", {}).get(base, f"[{base}]")
 
     if translated == f"[{base}]":
-        print(f"Не удалось найти перевод для региона: {base} на языке {lang}")
+        logging.debug(f"Не удалось найти перевод для региона: {base} на языке {lang}")
 
     # Добавляем число обратно (если оно было)
     return f"{translated} {count}" if count else translated
