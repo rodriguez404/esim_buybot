@@ -7,8 +7,7 @@ DB_CONFIG = {
     "apps": {
         "models": {
             "models": ["database.models.user", 
-                       "database.models.esim_global", 
-                       "database.models.esim_regional", 
+                       "database.models.esim_regional_and_global", 
                        "database.models.esim_local", 
                        "database.models.admin_tariff_groups", 
                        "aerich.models"

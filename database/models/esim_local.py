@@ -10,7 +10,7 @@ class DataBase_LocalCountry(models.Model):
     tariffs: fields.ReverseRelation["DataBase_LocalTariff"]
 
     class Meta:
-        table = "esim_local_countries"
+        table = "countries_local"
 
 
 # Таблица тарифов для стран: | Объем ГБ | Количество дней | Цена |
@@ -19,10 +19,9 @@ class DataBase_LocalTariff(models.Model):
     country = fields.ForeignKeyField("models.DataBase_LocalCountry", related_name="tariffs")
 
     slug = fields.CharField(max_length=20)  # Добавляем поле для хранения кода пакета
-    package_code = fields.CharField(max_length=20)  # Добавляем поле для хранения кода пакета
     gb = fields.FloatField()
     days = fields.IntField()
     price = fields.FloatField()
 
     class Meta:
-        table = "esim_local_tariffs"
+        table = "tariffs_local"

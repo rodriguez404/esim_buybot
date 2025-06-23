@@ -5,8 +5,7 @@ from api.microservices.order_esim import generate_signature
 from database.functions import esim_lists
 
 from handlers.keyboards import main_menu_kb, paginated_buttons_kb
-from database.models.esim_global import DataBase_EsimPackageGlobal
-from database.models.esim_regional import DataBase_RegionalTariff
+from database.models.esim_regional_and_global import DataBase_RegionalTariff
 from database.models.esim_local import DataBase_LocalTariff
 
 from localization.localization import get_text
@@ -116,7 +115,7 @@ async def inline_menu_regional_esim_tariff(callback: CallbackQuery, user_languag
         await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return
     
-    generate_signature(plan.package_code)
+    generate_signature(plan.slug)
 
     countries_text = await esim_lists.esim_regional_countries(plan_id, region_id, user_language)
     if not countries_text:
@@ -159,7 +158,7 @@ async def inline_menu_global_esim_tariff(callback: CallbackQuery, user_language:
     plan_id = int(callback.data.split("_")[-1])
 
     # Получаем тариф по ID
-    plan = await DataBase_EsimPackageGlobal.get_or_none(id=plan_id)
+    plan = await DataBase_RegionalTariff.get_or_none(id=plan_id)
     if not plan:
         await callback.message.answer(get_text(user_language, "error.tariff_not_found"))
         return

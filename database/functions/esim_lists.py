@@ -1,8 +1,7 @@
 
 from database.models.admin_tariff_groups import TariffGroup
 from database.models.esim_local import DataBase_LocalCountry, DataBase_LocalTariff
-from database.models.esim_global import DataBase_EsimCountryGlobal, DataBase_EsimPackageGlobal
-from database.models.esim_regional import DataBase_Region, DataBase_RegionalCountry, DataBase_RegionalTariff
+from database.models.esim_regional_and_global import DataBase_Region, DataBase_RegionalCountry, DataBase_RegionalTariff
 
 from microservices.format_number_UI import format_number
 from microservices.code_to_flag import code_to_flag
@@ -72,35 +71,6 @@ async def esim_regional_selected_region_plans(region_id):
 # Региональные eSIM: Конкретный регион -> страны региона (текст при выборе конкретного тарифа)
 async def esim_regional_countries(plan_id, region_id, user_language):
     countries = await DataBase_RegionalCountry.filter(tariff=plan_id, region=region_id).all()
-
-    countries.sort(key=lambda x: x.location_name)
-
-    countries_text_parts = [
-        f"{code_to_flag(i.location_code)} {translate_countries(i.location_name, user_language)}"
-        for i in countries
-    ]
-
-    return ", ".join(countries_text_parts)
-
-
-# Международные eSIM: тарифы
-async def esim_global():
-    plans = []
-
-    packages = await DataBase_EsimPackageGlobal.all()
-
-    for package in packages:
-        plans.append([package.id, format_number(package.gb), package.days, format_number(package.price)])
-
-    # Сортировка: по объему, затем по количеству дней, затем по цене
-    plans.sort(key=lambda x: (x[1], x[2], x[3]))
-
-    return plans
-
-
-# Международные eSIM: поддерживаемые страны
-async def esim_global_countries(plan_id, user_language):
-    countries = await DataBase_EsimCountryGlobal.filter(package_id=plan_id).all()
 
     countries.sort(key=lambda x: x.location_name)
 

@@ -91,5 +91,5 @@ async def update_esim_packages_local():
 
 async def reset_local_sequences():
     conn = Tortoise.get_connection("default")
-    await conn.execute_query('ALTER SEQUENCE "esim_local_countries_id_seq" RESTART WITH 1;')
-    await conn.execute_query('ALTER SEQUENCE "esim_local_tariffs_id_seq" RESTART WITH 1;')
+    await conn.execute_query('ALTER SEQUENCE "countries_local_id_seq" RESTART WITH 1;')
+    await conn.execute_query('ALTER SEQUENCE "tariffs_local_id_seq" RESTART WITH 1;')

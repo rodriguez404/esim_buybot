@@ -10,9 +10,8 @@ from api.esim_access import fetch
 from config import ESIM
 
 # Для проверки цены
-from database.models.esim_global import DataBase_EsimPackageGlobal
 from database.models.esim_local import DataBase_LocalTariff
-from database.models.esim_regional import DataBase_RegionalTariff
+from database.models.esim_regional_and_global import DataBase_RegionalTariff
 from database.models.user_transactions import DataBase_UserTransactions
 from microservices.get_user_id import get_user_id
 
@@ -34,10 +33,9 @@ async def order_esim(package_code: str, user_id: int, count: int = 1):
     timestamp = str(int(time.time() * 1000))
 
     # объявляется отдельно для package_info["price"] в body
-    global_pkg_price = await DataBase_EsimPackageGlobal.get_or_none(package_code=package_code)
     regional_pkg_price = await DataBase_RegionalTariff.get_or_none(package_code=package_code)
     local_pkg_price = await DataBase_LocalTariff.get_or_none(package_code=package_code)
-    price_obj = global_pkg_price or regional_pkg_price or local_pkg_price
+    price_obj = regional_pkg_price or local_pkg_price
 
     package_info = {
         "packageCode": package_code,
