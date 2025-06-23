@@ -251,7 +251,7 @@ async def successful_payment(message: Message):
     invoice_payload = message.successful_payment.invoice_payload  # ID тарифа (payload)
 
     # Извлекаем информацию о тарифе
-    plan = await order_esim(package_code=invoice_payload, user_id=message.from_user.id)
+    plan = await order_esim(slug=invoice_payload, user_id=message.from_user.id)
 
     if plan:
         await message.answer(
