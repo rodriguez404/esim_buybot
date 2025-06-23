@@ -1,8 +1,7 @@
-from aiogram import F, types
+from aiogram import F
+from aiogram.types import CallbackQuery, PreCheckoutQuery, Message, SuccessfulPayment, ContentType
 
-from aiogram.types import CallbackQuery
-from aiogram.types import PreCheckoutQuery, Message
-
+from api.microservices.order_esim import order_esim
 from database.models.esim_global import DataBase_EsimPackageGlobal
 from database.models.esim_local import DataBase_LocalTariff
 from database.models.esim_regional import DataBase_RegionalTariff
@@ -20,6 +19,8 @@ from redis_folder.functions.get_cache_json import get_cache_json
 from redis_folder.redis_client import get_redis
 
 import logging
+
+import json # Временно, для successful payment
 
 @router.callback_query(F.data == "close_inline_menu")
 async def close_menu_callback(callback: CallbackQuery):
@@ -65,7 +66,7 @@ async def region_esim_callback(callback: CallbackQuery, user_language: str):
 
 
 @router.callback_query(lambda c: c.data.startswith("global_page_"))
-async def callback_global_page(callback: types.CallbackQuery, user_language: str):
+async def callback_global_page(callback: CallbackQuery, user_language: str):
 
     page = int(callback.data.split("_")[-1])
     plans = await get_cache_json(key="esim_global") or await esim_lists.esim_global()
@@ -76,7 +77,7 @@ async def callback_global_page(callback: types.CallbackQuery, user_language: str
 
 
 @router.callback_query(lambda c: c.data.startswith("regional_page_"))
-async def callback_region_page(callback: types.CallbackQuery, user_language: str):
+async def callback_region_page(callback: CallbackQuery, user_language: str):
 
     page = int(callback.data.split("_")[-1])
     plans = await get_cache_json(key=f"esim_regional_regions_{user_language}") or await esim_lists.esim_regional(user_language)
@@ -88,14 +89,14 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Регионы -> Клик по региону для вывода его тарифов
 @router.callback_query(lambda c: c.data.startswith("region_id_"))
-async def selected_region_plans(callback: types.CallbackQuery, user_language: str):
+async def selected_region_plans(callback: CallbackQuery, user_language: str):
 
     await inline_menu.inline_menu_regional_esim_tariffs_list(callback, user_language)
 
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Переключение страниц по кнопкам "назад", "далее"
 @router.callback_query(lambda c: c.data.startswith("regional_region_page"))
-async def callback_region_page(callback: types.CallbackQuery, user_language: str):
+async def callback_region_page(callback: CallbackQuery, user_language: str):
 
     page = int(callback.data.split("_")[-1])
     region_id = int(callback.data.split("_")[-2])
@@ -108,7 +109,7 @@ async def callback_region_page(callback: types.CallbackQuery, user_language: str
 
 # Региональные eSIM: Купить eSIM -> Региональные eSIM -> Конкретный Регион -> Все тарифы по региону -> Клик по конкретному тарифу
 @router.callback_query(lambda c: c.data.startswith("regional_selected_region_plan_"))
-async def selected_plan_region(callback: types.CallbackQuery, user_language: str):
+async def selected_plan_region(callback: CallbackQuery, user_language: str):
 
     await inline_menu.inline_menu_regional_esim_tariff(callback, user_language)
 
@@ -137,7 +138,7 @@ async def local_countries_esim_callback(callback: CallbackQuery, user_language: 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Страны (Переключение между кнопками "назад" и "далее")
 @router.callback_query(lambda c: c.data.startswith("countries_list_page_"))
-async def callback_local_countries_list_page(callback: types.CallbackQuery, user_language: str):
+async def callback_local_countries_list_page(callback: CallbackQuery, user_language: str):
 
     page = int(callback.data.split("_")[-1])
     countries_list = await get_cache_json(key=f"esim_local_countries_{user_language}") or await esim_lists.esim_local_countries(user_language)
@@ -149,21 +150,21 @@ async def callback_local_countries_list_page(callback: types.CallbackQuery, user
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Страны -> Клик по стране для вывода её тарифов
 @router.callback_query(lambda c: c.data.startswith("country_id_"))
-async def selected_local_country_plans(callback: types.CallbackQuery, user_language: str):
+async def selected_local_country_plans(callback: CallbackQuery, user_language: str):
 
     await inline_menu.inline_menu_local_esim_tariffs_list(callback, user_language)
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная страна -> Все тарифы по стране -> Клик по конкретному тарифу
 @router.callback_query(lambda c: c.data.startswith("selected_country_id_plan_"))
-async def selected_plan_local(callback: types.CallbackQuery, user_language: str):
+async def selected_plan_local(callback: CallbackQuery, user_language: str):
 
     await inline_menu.inline_menu_local_esim_tariff(callback, user_language)
 
 
 # Местные eSIM: Купить eSIM -> Местные eSIM -> Конкретная Страна -> Все тарифы по стране -> Переключение страниц по кнопкам "назад", "далее"
 @router.callback_query(lambda c: c.data.startswith("selected_country_plans_page_"))
-async def callback_region_page(callback: types.CallbackQuery, user_language: str):
+async def callback_region_page(callback: CallbackQuery, user_language: str):
 
     page = int(callback.data.split("_")[-1])
     country_id = int(callback.data.split("_")[-2])
@@ -244,21 +245,22 @@ async def process_pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
 
-@router.message(F.successful_payment)
+@router.message(F.content_type == ContentType.SUCCESSFUL_PAYMENT)
 async def successful_payment(message: Message):
     amount = message.successful_payment.total_amount / 100  # Сумма в рублях
     invoice_payload = message.successful_payment.invoice_payload  # ID тарифа (payload)
 
     # Извлекаем информацию о тарифе
-    plan_id = int(invoice_payload.split("_")[-1])  # Извлекаем ID тарифа из payload
-    plan = await DataBase_EsimPackageGlobal.get_or_none(id=plan_id)
+    plan = await order_esim(package_code=invoice_payload, user_id=message.from_user.id)
+    # plan = await DataBase_EsimPackageGlobal.get_or_none(package_code=invoice_payload) or await DataBase_RegionalTariff.get_or_none(package_code=invoice_payload) or DataBase_LocalTariff.get_or_none(package_code=invoice_payload)
 
     if plan:
         await message.answer(
-            f"✅ Оплата прошла!\n"
-            f"Тариф: {plan.name}\n"
+            # изменить
+            f"✅ Оплата прошла успешно!\n"
+            f"Slug или Package_code Тарифа: {invoice_payload}\n"
             f"Сумма: {amount} {message.successful_payment.currency}\n"
-            "Тариф активирован! Все необходимые данные для активации eSIM отправлены на ваш телефон."
+            f"Тариф: {json.dumps(plan)}"
         )
 
         # Дополнительно: выдать eSIM или пополнить баланс пользователя
@@ -270,7 +272,7 @@ async def successful_payment(message: Message):
 
 # Админка – редактировать группы тарифов - список групп
 @router.callback_query(F.data == "admin_edit_tariff_groups")
-async def admin_edit_tariff_groups_menu(callback: types.CallbackQuery, user_language: str):
+async def admin_edit_tariff_groups_menu(callback: CallbackQuery, user_language: str):
 
     data = await esim_lists.esim_admin_tariff_groups()
     kb = paginated_buttons_kb.admin_tariff_groups_kb(data, user_language)
@@ -284,7 +286,7 @@ async def admin_edit_tariff_groups_menu(callback: types.CallbackQuery, user_lang
 
 # Админка – редактировать группы тарифов - список групп - назад и далее
 @router.callback_query(lambda c: c.data.startswith("admin_tariff_groups_page_"))
-async def admin_edit_tariff_groups_menu(callback: types.CallbackQuery, user_language: str):
+async def admin_edit_tariff_groups_menu(callback: CallbackQuery, user_language: str):
 
     page = int(callback.data.split("_")[-1])
     data = await esim_lists.esim_admin_tariff_groups()
@@ -295,7 +297,7 @@ async def admin_edit_tariff_groups_menu(callback: types.CallbackQuery, user_lang
 
 # Админка – редактировать группы тарифов - список групп - конкретная группа
 @router.callback_query(lambda c: c.data.startswith("asd"))
-async def admin_edit_tariff_groups_menu(callback: types.CallbackQuery, user_language: str):
+async def admin_edit_tariff_groups_menu(callback: CallbackQuery, user_language: str):
 
     data = await esim_lists.esim_admin_tariff_groups()
     kb = paginated_buttons_kb.admin_tariff_groups_kb(data, user_language)
