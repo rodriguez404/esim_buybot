@@ -58,17 +58,17 @@ async def main():
     await init_db()
 
     # Планировщик - для автоматического обновления БД
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(update_all_packages, 'interval', hours=24, next_run_time=datetime.now()) # Обновлять всё каждые 24 часа
-    scheduler.start()
-    logging.info("🔁 Планировщик обновлений работает")
+    # scheduler = AsyncIOScheduler()
+    # scheduler.add_job(update_all_packages, 'interval', hours=24, next_run_time=datetime.now()) # Обновлять всё каждые 24 часа
+    # scheduler.start()
+    # logging.info("🔁 Планировщик обновлений работает")
     
     dp = await init_dispatcher()
 
     if not isinstance(get_redis(), AsyncDummyRedis):
         await set_static_cache()
 
-    await update_admin_tariff_groups() # для дебаг-старта, в продакшне не нужно
+    # await update_admin_tariff_groups() # для дебаг-старта, в продакшне не нужно
 
     await set_commands(bot) # Устанавливаем команды для меню слева
     try:

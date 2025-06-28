@@ -19,7 +19,7 @@ async def send_payment_invoice(callback: CallbackQuery, plan):
         await bot.send_invoice(
             chat_id=callback.from_user.id,
             title="Покупка eSIM",
-            description=f"Тариф: {plan.gb}ГБ на {plan.days} дней.  !ВНИМАНИЕ! После успешного оформления тестового платежа будет приобретён реальный тариф (при токенах с балансом в .env)",
+            description=f"Тариф: {plan.gb}ГБ на {plan.days} дней.  !ВНИМАНИЕ! После успешного оформления тестового платежа будет приобретён реальный тариф",
             payload=payload,
             provider_token=PAYMENTS_TOKEN,
             currency="RUB",

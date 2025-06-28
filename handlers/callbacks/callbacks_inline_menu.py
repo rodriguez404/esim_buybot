@@ -1,6 +1,7 @@
 from aiogram import F
 from aiogram.types import CallbackQuery, PreCheckoutQuery, Message, SuccessfulPayment, ContentType
 
+from api.microservices.get_order_details import get_esim_details
 from api.microservices.order_esim import order_esim
 
 from database.models.esim_local import DataBase_LocalTariff
@@ -251,16 +252,27 @@ async def successful_payment(message: Message):
     invoice_payload = message.successful_payment.invoice_payload  # ID тарифа (payload)
 
     # Извлекаем информацию о тарифе
-    plan = await order_esim(slug=invoice_payload, user_id=message.from_user.id)
+    order_plan = await order_esim(slug=invoice_payload, user_id=message.from_user.id)
+    logging.debug(f"[SUCCESSFUL_PAYMENT: ORDER_PLAN]: {order_plan}")
 
-    if plan:
-        await message.answer(
-            # изменить
-            f"✅ Оплата прошла успешно!\n"
-            f"Slug или Package_code Тарифа: {invoice_payload}\n"
-            f"Сумма: {amount} {message.successful_payment.currency}\n"
-            f"Тариф: {json.dumps(plan)}"
+    if order_plan:
+        order_details = await get_esim_details(order_result=order_plan)
+        logging.debug(f"[SUCCESSFUL_PAYMENT: ORDER_DETAILS]: {order_details}")
+        qrcode_url = order_details.get("qrCodeUrl")
+        logging.debug(f"[SUCCESSFUL_PAYMENT: QRCODE_URL]: {qrcode_url}")
+
+        await message.answer_photo(
+            photo=qrcode_url,
+            caption="✅ Оплата прошла успешно!\nВаш QR-код для подключения eSIM 📲"
         )
+        # await message.answer(
+        #     # изменить
+        #     f"✅ Оплата прошла успешно!\n"
+        #     # f"Тариф: \n"
+        #     # f"Сумма: {amount} {message.successful_payment.currency}\n"
+        #     # f"[DEBUG] Ответ API: {json.dumps(order_plan)}\n"
+        #     f"🔗 QR-код для установки: {qrcode_url}"
+        # )
 
         # Дополнительно: выдать eSIM или пополнить баланс пользователя
         # Ваш код для активации eSIM и пополнения баланса

@@ -7,6 +7,7 @@ DB_CONFIG = {
     "apps": {
         "models": {
             "models": ["database.models.user", 
+                       "database.models.user_transactions",
                        "database.models.esim_regional_and_global", 
                        "database.models.esim_local", 
                        "database.models.admin_tariff_groups", 
