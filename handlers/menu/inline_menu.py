@@ -279,11 +279,11 @@ async def inline_menu_settings_change_language(callback: CallbackQuery, user_lan
 #Помощь
 async def replyPress_menu_help(message: types.Message, user_language: str):
 
-    kb = main_menu_kb.menu_help_kb(user_language)
+    # kb = main_menu_kb.menu_help_kb(user_language)
 
     await message.answer(
         get_text(user_language, "text.inline_menu.help.text_menu"),
-        reply_markup=kb,
+        # reply_markup=kb,
         parse_mode="Markdown"
     )
 

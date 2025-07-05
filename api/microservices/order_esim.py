@@ -15,7 +15,6 @@ from database.models.user_transactions import DataBase_UserTransactions
 
 
 async def order_esim(slug: str, user_id: int, count: int = 1):
-    # url = f"{ESIM.HOST_API_URL}/esim-order-api/v2/order"
     url = f"{ESIM.HOST_API_URL}/api/v1/open/esim/order"
     timestamp_default = time.time()
     timestamp_miliseconds = timestamp_default * 1000
@@ -33,7 +32,7 @@ async def order_esim(slug: str, user_id: int, count: int = 1):
     }
 
     body = {
-        "transactionId": f"{user_id}_{timestamp_str}_{slug}", # Сам придумал, уникальные айди транзакций: айдиПользователя_времяПокупки_слаг
+        "transactionId": f"{user_id}_{timestamp_str}_{slug}", # уникальные ID транзакций: айдиПользователя_времяПокупки_слаг
         "amount": package_info["price"] * count,
         "packageInfoList": [package_info]
     }

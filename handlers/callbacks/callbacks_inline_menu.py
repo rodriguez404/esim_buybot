@@ -252,8 +252,9 @@ async def successful_payment(message: Message):
     invoice_payload = message.successful_payment.invoice_payload  # ID тарифа (payload)
 
     # Извлекаем информацию о тарифе
-    order_plan = await order_esim(slug=invoice_payload, user_id=message.from_user.id)
-    logging.debug(f"[SUCCESSFUL_PAYMENT: ORDER_PLAN]: {order_plan}")
+    order_plan = None
+    # order_plan = await order_esim(slug=invoice_payload, user_id=message.from_user.id)
+    # logging.debug(f"[SUCCESSFUL_PAYMENT: ORDER_PLAN]: {order_plan}")
 
     if order_plan:
         order_details = await get_esim_details(order_result=order_plan)
@@ -278,7 +279,7 @@ async def successful_payment(message: Message):
         # Ваш код для активации eSIM и пополнения баланса
 
     else:
-        await message.answer("❌ Ошибка: Тариф не найден.")
+        await message.answer("❌ Ошибка: Тариф не найден или покупка в данный момент недоступна")
 
 
 # Админка – редактировать группы тарифов - список групп

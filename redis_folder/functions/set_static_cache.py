@@ -29,11 +29,11 @@ async def set_static_cache():
     start_total_time = time.time()
 
     # Глобальные eSIM: тарифы
-    start_global_time = time.time()
-    await get_redis().set(f"esim_global", json.dumps(await esim_lists.esim_global()))
+    # start_global_time = time.time()
+    # await get_redis().set(f"esim_global", json.dumps(await esim_lists.esim_regional()))
 
-    duration = (time.time() - start_global_time) * 1000  # в мс
-    logging.debug(f"[CACHE] Кэш esim_global обновлён за {duration:.2f} мс")
+    # duration = (time.time() - start_global_time) * 1000  # в мс
+    # logging.debug(f"[CACHE] Кэш esim_global обновлён за {duration:.2f} мс")
 
     # Кэш по всем языкам
     start_local_countries_time = {}

@@ -9,7 +9,6 @@ def menu_buy_esim_kb(user_language: str):
             # [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.popular_destinations"), callback_data="btn1")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.local_esim"), callback_data="local_esim_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.regional_and_global_esim"), callback_data="region_esim_inline_menu")],
-            #[InlineKeyboardButton(text=get_text(user_language, "button.inline_menu.buy_esim.global_esim"), callback_data="global_esim_inline_menu")],
             [InlineKeyboardButton(text=get_text(user_language, "button.close"), callback_data="close_inline_menu")]
         ]
     )

@@ -65,7 +65,7 @@
     "button.inline_menu.help.website": "Telegram_esim_buybot Website",
     "button.inline_menu.help.application_for_ios": "Telegram_esim_buybot App for iPhone",
     "button.inline_menu.help.referral_program": "Referral Program",
-    "text.inline_menu.help.text_menu": "*Help*\nYou can contact technical support directly at @Telegram_esim_buybot or select the desired section:",
+    "text.inline_menu.help.text_menu": "There will be an url for external bot",
 
 
     "button.next": "➡️ Next",
